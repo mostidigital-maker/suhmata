@@ -1,15 +1,25 @@
+import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { site } from "@/i18n/translations";
+import { useLocalizedField } from "@/hooks/useLocalizedField";
+import { contentQueries } from "@/services/queries";
+import { resolveMediaUrl } from "@/lib/media";
 import heroImage from "@/assets/hero-village.jpg";
 import crest from "@/assets/village-crest.png";
 
 export function HeroSection() {
   const { t } = useLanguage();
+  const field = useLocalizedField();
+  const { data: hero } = useQuery(contentQueries.hero());
+
+  const background = resolveMediaUrl(hero?.background_image, heroImage) ?? heroImage;
+  const title = field(hero, "title") || t(site.villageName);
+  const subtitle = field(hero, "subtitle") || t(site.heroIntro);
 
   return (
     <section id="top" className="relative isolate min-h-[92svh] overflow-hidden">
       <img
-        src={heroImage}
+        src={background}
         alt=""
         width={1920}
         height={1280}
@@ -35,7 +45,7 @@ export function HeroSection() {
           className="rise-in mt-5 text-4xl leading-tight font-semibold text-parchment sm:text-6xl md:text-7xl"
           style={{ animationDelay: "120ms" }}
         >
-          {t(site.villageName)}
+          {title}
         </h1>
 
         <div className="gold-rule mt-8 max-w-xs" />
@@ -44,7 +54,7 @@ export function HeroSection() {
           className="rise-in mt-8 max-w-2xl text-base leading-loose text-parchment/85 sm:text-lg"
           style={{ animationDelay: "240ms" }}
         >
-          {t(site.heroIntro)}
+          {subtitle}
         </p>
 
         <div

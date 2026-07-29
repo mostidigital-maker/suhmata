@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Toaster } from "sonner";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { HeroSection } from "@/components/site/HeroSection";
@@ -44,6 +45,7 @@ function Index() {
         <LocationSection />
       </main>
       <SiteFooter />
+      <Toaster position="top-center" />
     </LanguageProvider>
   );
 }

@@ -1,12 +1,17 @@
+import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { sections } from "@/i18n/translations";
+import { useLocalizedField } from "@/hooks/useLocalizedField";
+import { contentQueries } from "@/services/queries";
 import { Reveal } from "./Reveal";
 import { SectionShell } from "./SectionShell";
 import alley from "@/assets/stone-alley.jpg";
 
 export function HistorySection() {
   const { t } = useLanguage();
+  const field = useLocalizedField();
   const s = sections.history;
+  const { data: entries = [] } = useQuery(contentQueries.history());
 
   return (
     <SectionShell id="history" eyebrow={t(s.eyebrow)} title={t(s.title)} body={t(s.body)}>
@@ -25,20 +30,18 @@ export function HistorySection() {
         </Reveal>
 
         <ol className="relative space-y-10 border-s border-border ps-8">
-          {s.timeline.map((entry, i) => (
-            <li key={entry.period.en} className="relative">
+          {entries.map((entry, i) => (
+            <li key={entry.id} className="relative">
               <span className="absolute -start-[2.05rem] top-2 h-2.5 w-2.5 rounded-full bg-accent ring-4 ring-background" />
               <Reveal delay={i * 90}>
-                <p className="font-body text-[0.7rem] tracking-[0.3em] text-olive uppercase">
-                  {t(entry.period)}
+                <h3 className="text-2xl font-semibold">{field(entry, "title")}</h3>
+                <p className="mt-3 leading-loose text-muted-foreground">
+                  {field(entry, "content")}
                 </p>
-                <h3 className="mt-2 text-2xl font-semibold">{t(entry.title)}</h3>
-                <p className="mt-3 leading-loose text-muted-foreground">{t(entry.body)}</p>
               </Reveal>
             </li>
           ))}
         </ol>
-
       </div>
     </SectionShell>
   );

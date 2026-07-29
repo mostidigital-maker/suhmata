@@ -1,4 +1,7 @@
+import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { contentQueries } from "@/services/queries";
 import { nav, sections, site } from "@/i18n/translations";
 import crest from "@/assets/village-crest.png";
 
@@ -6,6 +9,14 @@ export function SiteFooter() {
   const { lang, t } = useLanguage();
   const f = sections.footer;
   const year = new Date().getFullYear();
+  const { data: settings } = useQuery(contentQueries.settings());
+  const socials = [
+    { label: "Facebook", href: settings?.facebook },
+    { label: "Instagram", href: settings?.instagram },
+    { label: "WhatsApp", href: settings?.whatsapp },
+    { label: "Google Maps", href: settings?.google_maps },
+    { label: "Waze", href: settings?.waze },
+  ].filter((item) => Boolean(item.href));
 
   return (
     <footer className="paper-grain border-t border-border bg-secondary px-5 py-16 sm:px-8">
@@ -45,11 +56,19 @@ export function SiteFooter() {
           <div>
             <h3 className="text-sm tracking-[0.25em] text-olive uppercase">{t(f.contactTitle)}</h3>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-              <li>{t(f.email)}</li>
-              <li dir="ltr" className="rtl:text-end">
-                {t(f.phone)}
-              </li>
-              <li>{t(f.address)}</li>
+              <li>{settings?.contact_email ?? t(f.email)}</li>
+              {socials.map((item) => (
+                <li key={item.label}>
+                  <a
+                    href={item.href as string}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="transition-colors hover:text-foreground"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -67,10 +86,9 @@ export function SiteFooter() {
           <p>
             © {year} {t(f.rights)}
           </p>
-          {/* Reserved entry point for the future Admin Dashboard. */}
-          <a href="#top" className="transition-colors hover:text-foreground">
+          <Link to="/auth" className="transition-colors hover:text-foreground">
             {t(f.adminLink)}
-          </a>
+          </Link>
         </div>
       </div>
     </footer>
