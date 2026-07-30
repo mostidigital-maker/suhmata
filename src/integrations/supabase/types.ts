@@ -14,41 +14,182 @@ export type Database = {
   }
   public: {
     Tables: {
-      articles: {
+      albums: {
         Row: {
-          content_ar: string
-          content_en: string
+          category_id: string | null
           cover_image: string | null
           created_at: string
-          featured: boolean
+          description_ar: string
+          description_en: string
           id: string
-          published: boolean
+          slug: string
+          sort_order: number
           title_ar: string
           title_en: string
         }
         Insert: {
-          content_ar?: string
-          content_en?: string
+          category_id?: string | null
           cover_image?: string | null
           created_at?: string
-          featured?: boolean
+          description_ar?: string
+          description_en?: string
           id?: string
-          published?: boolean
+          slug: string
+          sort_order?: number
           title_ar?: string
           title_en?: string
         }
         Update: {
+          category_id?: string | null
+          cover_image?: string | null
+          created_at?: string
+          description_ar?: string
+          description_en?: string
+          id?: string
+          slug?: string
+          sort_order?: number
+          title_ar?: string
+          title_en?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "albums_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_items: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          description_ar: string
+          description_en: string
+          downloadable: boolean
+          file_url: string
+          id: string
+          kind: string
+          notes_ar: string
+          notes_en: string
+          published: boolean
+          slug: string
+          source: string | null
+          thumbnail_url: string | null
+          title_ar: string
+          title_en: string
+          year: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          description_ar?: string
+          description_en?: string
+          downloadable?: boolean
+          file_url: string
+          id?: string
+          kind?: string
+          notes_ar?: string
+          notes_en?: string
+          published?: boolean
+          slug: string
+          source?: string | null
+          thumbnail_url?: string | null
+          title_ar?: string
+          title_en?: string
+          year?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          description_ar?: string
+          description_en?: string
+          downloadable?: boolean
+          file_url?: string
+          id?: string
+          kind?: string
+          notes_ar?: string
+          notes_en?: string
+          published?: boolean
+          slug?: string
+          source?: string | null
+          thumbnail_url?: string | null
+          title_ar?: string
+          title_en?: string
+          year?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      articles: {
+        Row: {
+          category_id: string | null
+          content_ar: string
+          content_en: string
+          cover_image: string | null
+          created_at: string
+          excerpt_ar: string
+          excerpt_en: string
+          featured: boolean
+          id: string
+          published: boolean
+          published_at: string
+          reading_minutes: number
+          slug: string | null
+          title_ar: string
+          title_en: string
+        }
+        Insert: {
+          category_id?: string | null
           content_ar?: string
           content_en?: string
           cover_image?: string | null
           created_at?: string
+          excerpt_ar?: string
+          excerpt_en?: string
           featured?: boolean
           id?: string
           published?: boolean
+          published_at?: string
+          reading_minutes?: number
+          slug?: string | null
           title_ar?: string
           title_en?: string
         }
-        Relationships: []
+        Update: {
+          category_id?: string | null
+          content_ar?: string
+          content_en?: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt_ar?: string
+          excerpt_en?: string
+          featured?: boolean
+          id?: string
+          published?: boolean
+          published_at?: string
+          reading_minutes?: number
+          slug?: string | null
+          title_ar?: string
+          title_en?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       association_message: {
         Row: {
@@ -77,6 +218,113 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name_ar: string
+          name_en: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name_ar?: string
+          name_en?: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name_ar?: string
+          name_en?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      contributions: {
+        Row: {
+          body: string | null
+          contributor_name: string
+          created_at: string
+          email: string | null
+          id: string
+          kind: string
+          media_url: string | null
+          social_link: string | null
+          status: string
+          title: string | null
+        }
+        Insert: {
+          body?: string | null
+          contributor_name: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          kind?: string
+          media_url?: string | null
+          social_link?: string | null
+          status?: string
+          title?: string | null
+        }
+        Update: {
+          body?: string | null
+          contributor_name?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          kind?: string
+          media_url?: string | null
+          social_link?: string | null
+          status?: string
+          title?: string | null
+        }
+        Relationships: []
+      }
+      event_media: {
+        Row: {
+          caption_ar: string
+          caption_en: string
+          created_at: string
+          event_id: string
+          id: string
+          media_type: string
+          media_url: string
+          sort_order: number
+        }
+        Insert: {
+          caption_ar?: string
+          caption_en?: string
+          created_at?: string
+          event_id: string
+          id?: string
+          media_type?: string
+          media_url: string
+          sort_order?: number
+        }
+        Update: {
+          caption_ar?: string
+          caption_en?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          media_type?: string
+          media_url?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           archived: boolean
@@ -87,6 +335,7 @@ export type Database = {
           event_date: string | null
           id: string
           location: string | null
+          slug: string | null
           summary_ar: string
           summary_en: string
           title_ar: string
@@ -101,6 +350,7 @@ export type Database = {
           event_date?: string | null
           id?: string
           location?: string | null
+          slug?: string | null
           summary_ar?: string
           summary_en?: string
           title_ar?: string
@@ -115,6 +365,7 @@ export type Database = {
           event_date?: string | null
           id?: string
           location?: string | null
+          slug?: string | null
           summary_ar?: string
           summary_en?: string
           title_ar?: string
@@ -125,32 +376,52 @@ export type Database = {
       gallery: {
         Row: {
           album: string
+          album_id: string | null
           caption_ar: string
           caption_en: string
           created_at: string
+          height: number | null
           id: string
           media_type: string
           media_url: string
+          sort_order: number
+          width: number | null
         }
         Insert: {
           album?: string
+          album_id?: string | null
           caption_ar?: string
           caption_en?: string
           created_at?: string
+          height?: number | null
           id?: string
           media_type?: string
           media_url: string
+          sort_order?: number
+          width?: number | null
         }
         Update: {
           album?: string
+          album_id?: string | null
           caption_ar?: string
           caption_en?: string
           created_at?: string
+          height?: number | null
           id?: string
           media_type?: string
           media_url?: string
+          sort_order?: number
+          width?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "gallery_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "albums"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       guestbook: {
         Row: {
@@ -239,6 +510,92 @@ export type Database = {
           sort_order?: number
           title_ar?: string
           title_en?: string
+        }
+        Relationships: []
+      }
+      map_location_media: {
+        Row: {
+          caption_ar: string
+          caption_en: string
+          created_at: string
+          id: string
+          location_id: string
+          media_url: string
+          sort_order: number
+        }
+        Insert: {
+          caption_ar?: string
+          caption_en?: string
+          created_at?: string
+          id?: string
+          location_id: string
+          media_url: string
+          sort_order?: number
+        }
+        Update: {
+          caption_ar?: string
+          caption_en?: string
+          created_at?: string
+          id?: string
+          location_id?: string
+          media_url?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_location_media_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "map_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      map_locations: {
+        Row: {
+          created_at: string
+          description_ar: string
+          description_en: string
+          id: string
+          kind: string
+          name_ar: string
+          name_en: string
+          notes_ar: string
+          notes_en: string
+          pos_x: number
+          pos_y: number
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          description_ar?: string
+          description_en?: string
+          id?: string
+          kind?: string
+          name_ar?: string
+          name_en?: string
+          notes_ar?: string
+          notes_en?: string
+          pos_x?: number
+          pos_y?: number
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          description_ar?: string
+          description_en?: string
+          id?: string
+          kind?: string
+          name_ar?: string
+          name_en?: string
+          notes_ar?: string
+          notes_en?: string
+          pos_x?: number
+          pos_y?: number
+          slug?: string
+          sort_order?: number
         }
         Relationships: []
       }
