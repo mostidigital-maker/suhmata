@@ -10,18 +10,34 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as MapRouteImport } from './routes/map'
+import { Route as ContributeRouteImport } from './routes/contribute'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GalleryIndexRouteImport } from './routes/gallery/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
+import { Route as ArticlesIndexRouteImport } from './routes/articles/index'
+import { Route as ArchiveIndexRouteImport } from './routes/archive/index'
 import { Route as GalleryAlbumRouteImport } from './routes/gallery/$album'
 import { Route as EventsSlugRouteImport } from './routes/events/$slug'
+import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
+import { Route as ArchiveSlugRouteImport } from './routes/archive/$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapRoute = MapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContributeRoute = ContributeRouteImport.update({
+  id: '/contribute',
+  path: '/contribute',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -48,6 +64,16 @@ const EventsIndexRoute = EventsIndexRouteImport.update({
   path: '/events/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArticlesIndexRoute = ArticlesIndexRouteImport.update({
+  id: '/articles/',
+  path: '/articles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArchiveIndexRoute = ArchiveIndexRouteImport.update({
+  id: '/archive/',
+  path: '/archive/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GalleryAlbumRoute = GalleryAlbumRouteImport.update({
   id: '/gallery/$album',
   path: '/gallery/$album',
@@ -56,6 +82,16 @@ const GalleryAlbumRoute = GalleryAlbumRouteImport.update({
 const EventsSlugRoute = EventsSlugRouteImport.update({
   id: '/events/$slug',
   path: '/events/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArticlesSlugRoute = ArticlesSlugRouteImport.update({
+  id: '/articles/$slug',
+  path: '/articles/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArchiveSlugRoute = ArchiveSlugRouteImport.update({
+  id: '/archive/$slug',
+  path: '/archive/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -67,20 +103,32 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/contribute': typeof ContributeRoute
+  '/map': typeof MapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/archive/$slug': typeof ArchiveSlugRoute
+  '/articles/$slug': typeof ArticlesSlugRoute
   '/events/$slug': typeof EventsSlugRoute
   '/gallery/$album': typeof GalleryAlbumRoute
+  '/archive/': typeof ArchiveIndexRoute
+  '/articles/': typeof ArticlesIndexRoute
   '/events/': typeof EventsIndexRoute
   '/gallery/': typeof GalleryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/contribute': typeof ContributeRoute
+  '/map': typeof MapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/archive/$slug': typeof ArchiveSlugRoute
+  '/articles/$slug': typeof ArticlesSlugRoute
   '/events/$slug': typeof EventsSlugRoute
   '/gallery/$album': typeof GalleryAlbumRoute
+  '/archive': typeof ArchiveIndexRoute
+  '/articles': typeof ArticlesIndexRoute
   '/events': typeof EventsIndexRoute
   '/gallery': typeof GalleryIndexRoute
 }
@@ -89,10 +137,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/contribute': typeof ContributeRoute
+  '/map': typeof MapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/archive/$slug': typeof ArchiveSlugRoute
+  '/articles/$slug': typeof ArticlesSlugRoute
   '/events/$slug': typeof EventsSlugRoute
   '/gallery/$album': typeof GalleryAlbumRoute
+  '/archive/': typeof ArchiveIndexRoute
+  '/articles/': typeof ArticlesIndexRoute
   '/events/': typeof EventsIndexRoute
   '/gallery/': typeof GalleryIndexRoute
 }
@@ -101,20 +155,32 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/contribute'
+    | '/map'
     | '/sitemap.xml'
     | '/admin'
+    | '/archive/$slug'
+    | '/articles/$slug'
     | '/events/$slug'
     | '/gallery/$album'
+    | '/archive/'
+    | '/articles/'
     | '/events/'
     | '/gallery/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/contribute'
+    | '/map'
     | '/sitemap.xml'
     | '/admin'
+    | '/archive/$slug'
+    | '/articles/$slug'
     | '/events/$slug'
     | '/gallery/$album'
+    | '/archive'
+    | '/articles'
     | '/events'
     | '/gallery'
   id:
@@ -122,10 +188,16 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/contribute'
+    | '/map'
     | '/sitemap.xml'
     | '/_authenticated/admin'
+    | '/archive/$slug'
+    | '/articles/$slug'
     | '/events/$slug'
     | '/gallery/$album'
+    | '/archive/'
+    | '/articles/'
     | '/events/'
     | '/gallery/'
   fileRoutesById: FileRoutesById
@@ -134,9 +206,15 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ContributeRoute: typeof ContributeRoute
+  MapRoute: typeof MapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ArchiveSlugRoute: typeof ArchiveSlugRoute
+  ArticlesSlugRoute: typeof ArticlesSlugRoute
   EventsSlugRoute: typeof EventsSlugRoute
   GalleryAlbumRoute: typeof GalleryAlbumRoute
+  ArchiveIndexRoute: typeof ArchiveIndexRoute
+  ArticlesIndexRoute: typeof ArticlesIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
   GalleryIndexRoute: typeof GalleryIndexRoute
 }
@@ -148,6 +226,20 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contribute': {
+      id: '/contribute'
+      path: '/contribute'
+      fullPath: '/contribute'
+      preLoaderRoute: typeof ContributeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -185,6 +277,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/articles/': {
+      id: '/articles/'
+      path: '/articles'
+      fullPath: '/articles/'
+      preLoaderRoute: typeof ArticlesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/archive/': {
+      id: '/archive/'
+      path: '/archive'
+      fullPath: '/archive/'
+      preLoaderRoute: typeof ArchiveIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gallery/$album': {
       id: '/gallery/$album'
       path: '/gallery/$album'
@@ -197,6 +303,20 @@ declare module '@tanstack/react-router' {
       path: '/events/$slug'
       fullPath: '/events/$slug'
       preLoaderRoute: typeof EventsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/articles/$slug': {
+      id: '/articles/$slug'
+      path: '/articles/$slug'
+      fullPath: '/articles/$slug'
+      preLoaderRoute: typeof ArticlesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/archive/$slug': {
+      id: '/archive/$slug'
+      path: '/archive/$slug'
+      fullPath: '/archive/$slug'
+      preLoaderRoute: typeof ArchiveSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -224,9 +344,15 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ContributeRoute: ContributeRoute,
+  MapRoute: MapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ArchiveSlugRoute: ArchiveSlugRoute,
+  ArticlesSlugRoute: ArticlesSlugRoute,
   EventsSlugRoute: EventsSlugRoute,
   GalleryAlbumRoute: GalleryAlbumRoute,
+  ArchiveIndexRoute: ArchiveIndexRoute,
+  ArticlesIndexRoute: ArticlesIndexRoute,
   EventsIndexRoute: EventsIndexRoute,
   GalleryIndexRoute: GalleryIndexRoute,
 }

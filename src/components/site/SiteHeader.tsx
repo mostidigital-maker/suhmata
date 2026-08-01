@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { nav, site } from "@/i18n/translations";
+import { site } from "@/i18n/translations";
+import { mainNav } from "@/i18n/pages";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import crest from "@/assets/village-crest.png";
 
@@ -62,17 +64,18 @@ export function SiteHeader() {
         </a>
 
         <nav className="hidden items-center gap-6 lg:flex">
-          {nav.map((item) => (
-            <a
+          {mainNav.map((item) => (
+            <Link
               key={item.id}
-              href={`#${item.id}`}
+              to={item.to as "/"}
+              hash={item.hash}
               className={cn(
                 "text-sm transition-colors duration-300 hover:text-accent",
                 scrolled ? "text-foreground/80" : "text-parchment/85",
               )}
             >
-              {item[lang]}
-            </a>
+              {item.label[lang]}
+            </Link>
           ))}
         </nav>
 
@@ -98,15 +101,16 @@ export function SiteHeader() {
       {open ? (
         <nav className="border-t border-border/60 bg-background/97 px-5 pb-5 lg:hidden">
           <ul className="mx-auto max-w-6xl">
-            {nav.map((item) => (
+            {mainNav.map((item) => (
               <li key={item.id} className="border-b border-border/50 last:border-0">
-                <a
-                  href={`#${item.id}`}
+                <Link
+                  to={item.to as "/"}
+                  hash={item.hash}
                   onClick={() => setOpen(false)}
                   className="block py-3 text-sm text-foreground/85 transition-colors hover:text-accent"
                 >
-                  {item[lang]}
-                </a>
+                  {item.label[lang]}
+                </Link>
               </li>
             ))}
           </ul>
