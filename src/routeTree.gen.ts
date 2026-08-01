@@ -20,6 +20,7 @@ import { Route as ArchiveIndexRouteImport } from './routes/archive/index'
 import { Route as GalleryAlbumRouteImport } from './routes/gallery/$album'
 import { Route as EventsSlugRouteImport } from './routes/events/$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
+import { Route as ArchiveSlugRouteImport } from './routes/archive/$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -76,6 +77,11 @@ const ArticlesSlugRoute = ArticlesSlugRouteImport.update({
   path: '/articles/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArchiveSlugRoute = ArchiveSlugRouteImport.update({
+  id: '/archive/$slug',
+  path: '/archive/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/archive/$slug': typeof ArchiveSlugRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/events/$slug': typeof EventsSlugRoute
   '/gallery/$album': typeof GalleryAlbumRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/archive/$slug': typeof ArchiveSlugRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/events/$slug': typeof EventsSlugRoute
   '/gallery/$album': typeof GalleryAlbumRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/archive/$slug': typeof ArchiveSlugRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/events/$slug': typeof EventsSlugRoute
   '/gallery/$album': typeof GalleryAlbumRoute
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/admin'
+    | '/archive/$slug'
     | '/articles/$slug'
     | '/events/$slug'
     | '/gallery/$album'
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/admin'
+    | '/archive/$slug'
     | '/articles/$slug'
     | '/events/$slug'
     | '/gallery/$album'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/_authenticated/admin'
+    | '/archive/$slug'
     | '/articles/$slug'
     | '/events/$slug'
     | '/gallery/$album'
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ArchiveSlugRoute: typeof ArchiveSlugRoute
   ArticlesSlugRoute: typeof ArticlesSlugRoute
   EventsSlugRoute: typeof EventsSlugRoute
   GalleryAlbumRoute: typeof GalleryAlbumRoute
@@ -259,6 +272,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArticlesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/archive/$slug': {
+      id: '/archive/$slug'
+      path: '/archive/$slug'
+      fullPath: '/archive/$slug'
+      preLoaderRoute: typeof ArchiveSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -285,6 +305,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ArchiveSlugRoute: ArchiveSlugRoute,
   ArticlesSlugRoute: ArticlesSlugRoute,
   EventsSlugRoute: EventsSlugRoute,
   GalleryAlbumRoute: GalleryAlbumRoute,
