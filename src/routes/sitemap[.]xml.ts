@@ -49,7 +49,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         push(albums.data, "/gallery");
         push(archive.data, "/archive");
 
-        const entries: SitemapEntry[] = [{ path: "/", changefreq: "weekly", priority: "1.0" }];
+
 
         const urls = entries.map((e) =>
           [
