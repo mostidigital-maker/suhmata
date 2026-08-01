@@ -100,15 +100,16 @@ export function SiteHeader() {
       {open ? (
         <nav className="border-t border-border/60 bg-background/97 px-5 pb-5 lg:hidden">
           <ul className="mx-auto max-w-6xl">
-            {nav.map((item) => (
+            {mainNav.map((item) => (
               <li key={item.id} className="border-b border-border/50 last:border-0">
-                <a
-                  href={`#${item.id}`}
+                <Link
+                  to={item.to as "/"}
+                  hash={item.hash}
                   onClick={() => setOpen(false)}
                   className="block py-3 text-sm text-foreground/85 transition-colors hover:text-accent"
                 >
-                  {item[lang]}
-                </a>
+                  {item.label[lang]}
+                </Link>
               </li>
             ))}
           </ul>
