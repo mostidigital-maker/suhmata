@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GalleryIndexRouteImport } from './routes/gallery/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
+import { Route as ArticlesIndexRouteImport } from './routes/articles/index'
 import { Route as GalleryAlbumRouteImport } from './routes/gallery/$album'
 import { Route as EventsSlugRouteImport } from './routes/events/$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -48,6 +49,11 @@ const EventsIndexRoute = EventsIndexRouteImport.update({
   path: '/events/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArticlesIndexRoute = ArticlesIndexRouteImport.update({
+  id: '/articles/',
+  path: '/articles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GalleryAlbumRoute = GalleryAlbumRouteImport.update({
   id: '/gallery/$album',
   path: '/gallery/$album',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/events/$slug': typeof EventsSlugRoute
   '/gallery/$album': typeof GalleryAlbumRoute
+  '/articles/': typeof ArticlesIndexRoute
   '/events/': typeof EventsIndexRoute
   '/gallery/': typeof GalleryIndexRoute
 }
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/events/$slug': typeof EventsSlugRoute
   '/gallery/$album': typeof GalleryAlbumRoute
+  '/articles': typeof ArticlesIndexRoute
   '/events': typeof EventsIndexRoute
   '/gallery': typeof GalleryIndexRoute
 }
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/events/$slug': typeof EventsSlugRoute
   '/gallery/$album': typeof GalleryAlbumRoute
+  '/articles/': typeof ArticlesIndexRoute
   '/events/': typeof EventsIndexRoute
   '/gallery/': typeof GalleryIndexRoute
 }
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/events/$slug'
     | '/gallery/$album'
+    | '/articles/'
     | '/events/'
     | '/gallery/'
   fileRoutesByTo: FileRoutesByTo
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/events/$slug'
     | '/gallery/$album'
+    | '/articles'
     | '/events'
     | '/gallery'
   id:
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/events/$slug'
     | '/gallery/$album'
+    | '/articles/'
     | '/events/'
     | '/gallery/'
   fileRoutesById: FileRoutesById
@@ -137,6 +149,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   EventsSlugRoute: typeof EventsSlugRoute
   GalleryAlbumRoute: typeof GalleryAlbumRoute
+  ArticlesIndexRoute: typeof ArticlesIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
   GalleryIndexRoute: typeof GalleryIndexRoute
 }
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/articles/': {
+      id: '/articles/'
+      path: '/articles'
+      fullPath: '/articles/'
+      preLoaderRoute: typeof ArticlesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gallery/$album': {
       id: '/gallery/$album'
       path: '/gallery/$album'
@@ -227,6 +247,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   EventsSlugRoute: EventsSlugRoute,
   GalleryAlbumRoute: GalleryAlbumRoute,
+  ArticlesIndexRoute: ArticlesIndexRoute,
   EventsIndexRoute: EventsIndexRoute,
   GalleryIndexRoute: GalleryIndexRoute,
 }
