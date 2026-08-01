@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as GalleryIndexRouteImport } from './routes/gallery/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles/index'
+import { Route as ArchiveIndexRouteImport } from './routes/archive/index'
 import { Route as GalleryAlbumRouteImport } from './routes/gallery/$album'
 import { Route as EventsSlugRouteImport } from './routes/events/$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
@@ -55,6 +56,11 @@ const ArticlesIndexRoute = ArticlesIndexRouteImport.update({
   path: '/articles/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArchiveIndexRoute = ArchiveIndexRouteImport.update({
+  id: '/archive/',
+  path: '/archive/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GalleryAlbumRoute = GalleryAlbumRouteImport.update({
   id: '/gallery/$album',
   path: '/gallery/$album',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/events/$slug': typeof EventsSlugRoute
   '/gallery/$album': typeof GalleryAlbumRoute
+  '/archive/': typeof ArchiveIndexRoute
   '/articles/': typeof ArticlesIndexRoute
   '/events/': typeof EventsIndexRoute
   '/gallery/': typeof GalleryIndexRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/events/$slug': typeof EventsSlugRoute
   '/gallery/$album': typeof GalleryAlbumRoute
+  '/archive': typeof ArchiveIndexRoute
   '/articles': typeof ArticlesIndexRoute
   '/events': typeof EventsIndexRoute
   '/gallery': typeof GalleryIndexRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/events/$slug': typeof EventsSlugRoute
   '/gallery/$album': typeof GalleryAlbumRoute
+  '/archive/': typeof ArchiveIndexRoute
   '/articles/': typeof ArticlesIndexRoute
   '/events/': typeof EventsIndexRoute
   '/gallery/': typeof GalleryIndexRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/articles/$slug'
     | '/events/$slug'
     | '/gallery/$album'
+    | '/archive/'
     | '/articles/'
     | '/events/'
     | '/gallery/'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/articles/$slug'
     | '/events/$slug'
     | '/gallery/$album'
+    | '/archive'
     | '/articles'
     | '/events'
     | '/gallery'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/articles/$slug'
     | '/events/$slug'
     | '/gallery/$album'
+    | '/archive/'
     | '/articles/'
     | '/events/'
     | '/gallery/'
@@ -162,6 +174,7 @@ export interface RootRouteChildren {
   ArticlesSlugRoute: typeof ArticlesSlugRoute
   EventsSlugRoute: typeof EventsSlugRoute
   GalleryAlbumRoute: typeof GalleryAlbumRoute
+  ArchiveIndexRoute: typeof ArchiveIndexRoute
   ArticlesIndexRoute: typeof ArticlesIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
   GalleryIndexRoute: typeof GalleryIndexRoute
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArticlesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/archive/': {
+      id: '/archive/'
+      path: '/archive'
+      fullPath: '/archive/'
+      preLoaderRoute: typeof ArchiveIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gallery/$album': {
       id: '/gallery/$album'
       path: '/gallery/$album'
@@ -268,6 +288,7 @@ const rootRouteChildren: RootRouteChildren = {
   ArticlesSlugRoute: ArticlesSlugRoute,
   EventsSlugRoute: EventsSlugRoute,
   GalleryAlbumRoute: GalleryAlbumRoute,
+  ArchiveIndexRoute: ArchiveIndexRoute,
   ArticlesIndexRoute: ArticlesIndexRoute,
   EventsIndexRoute: EventsIndexRoute,
   GalleryIndexRoute: GalleryIndexRoute,
