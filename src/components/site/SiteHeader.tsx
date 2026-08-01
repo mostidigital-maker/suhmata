@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { nav, site } from "@/i18n/translations";
+import { site } from "@/i18n/translations";
+import { mainNav } from "@/i18n/pages";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import crest from "@/assets/village-crest.png";
 
