@@ -64,17 +64,18 @@ export function SiteHeader() {
         </a>
 
         <nav className="hidden items-center gap-6 lg:flex">
-          {nav.map((item) => (
-            <a
+          {mainNav.map((item) => (
+            <Link
               key={item.id}
-              href={`#${item.id}`}
+              to={item.to as "/"}
+              hash={item.hash}
               className={cn(
                 "text-sm transition-colors duration-300 hover:text-accent",
                 scrolled ? "text-foreground/80" : "text-parchment/85",
               )}
             >
-              {item[lang]}
-            </a>
+              {item.label[lang]}
+            </Link>
           ))}
         </nav>
 
