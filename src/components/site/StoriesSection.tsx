@@ -105,12 +105,18 @@ export function StoriesSection() {
               <input
                 className={inputClass}
                 maxLength={500}
-                placeholder={
-                  lang === "ar" ? "رابط حساب تواصل (اختياري)" : "Social link (optional)"
-                }
-                value={form.social_link}
-                onChange={(e) => setForm({ ...form, social_link: e.target.value })}
+                placeholder={lang === "ar" ? "رابط فيسبوك (اختياري)" : "Facebook (optional)"}
+                value={form.facebook}
+                onChange={(e) => setForm({ ...form, facebook: e.target.value })}
               />
+              <input
+                className={inputClass}
+                maxLength={500}
+                placeholder={lang === "ar" ? "رابط إنستغرام (اختياري)" : "Instagram (optional)"}
+                value={form.instagram}
+                onChange={(e) => setForm({ ...form, instagram: e.target.value })}
+              />
+
               <textarea
                 className={inputClass}
                 required
