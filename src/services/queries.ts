@@ -7,6 +7,7 @@ import {
   fetchArticleBySlug,
   fetchArticles,
   fetchApprovedContributions,
+  fetchApprovedVideos,
   fetchAssociationMessage,
   fetchCategories,
   fetchEventBySlug,
