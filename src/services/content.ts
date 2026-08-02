@@ -372,13 +372,14 @@ export async function fetchGuestbook(limit = 6): Promise<GuestbookEntry[]> {
         .from("guestbook")
         .select("*")
         .eq("approved", true)
+        .eq("hidden", false)
         .order("created_at", { ascending: false })
         .limit(limit),
     ) ?? []
   );
 }
 
-export async function fetchApprovedVideos(limit = 6): Promise<VisitorVideo[]> {
+export async function fetchApprovedVideos(limit = 24): Promise<VisitorVideo[]> {
   return (
     unwrap(
       await supabase
@@ -393,7 +394,10 @@ export async function fetchApprovedVideos(limit = 6): Promise<VisitorVideo[]> {
 
 /** Public submission — always stored unapproved, moderated by staff. */
 export async function submitGuestbookEntry(
-  entry: Pick<TablesInsert<"guestbook">, "name" | "email" | "social_link" | "message">,
+  entry: Pick<
+    TablesInsert<"guestbook">,
+    "name" | "email" | "social_link" | "facebook" | "instagram" | "message"
+  >,
 ): Promise<void> {
   const { error } = await supabase.from("guestbook").insert({ ...entry, approved: false });
   if (error) throw new Error(error.message);
@@ -409,3 +413,13 @@ export async function submitVisitorVideo(
   const { error } = await supabase.from("visitor_videos").insert({ ...entry, status: "pending" });
   if (error) throw new Error(error.message);
 }
+
+/** Uploads a visitor video file to the media library and returns its stored path. */
+export async function uploadVisitorVideoFile(file: File): Promise<string> {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "mp4";
+  const path = `visitor-videos/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("media").upload(path, file, { upsert: false });
+  if (error) throw new Error(error.message);
+  return path;
+}
+
