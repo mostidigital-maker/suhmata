@@ -15,7 +15,13 @@ export function StoriesSection() {
   const queryClient = useQueryClient();
   const { data: entries = [] } = useQuery(contentQueries.guestbook(6));
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", social_link: "", message: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    facebook: "",
+    instagram: "",
+    message: "",
+  });
 
   const mutation = useMutation({
     mutationFn: submitGuestbookEntry,
@@ -25,7 +31,7 @@ export function StoriesSection() {
           ? "شكراً لك — ستُراجع روايتك قبل نشرها."
           : "Thank you — your story will be reviewed before publication.",
       );
-      setForm({ name: "", email: "", social_link: "", message: "" });
+      setForm({ name: "", email: "", facebook: "", instagram: "", message: "" });
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["guestbook"] });
     },
@@ -38,10 +44,13 @@ export function StoriesSection() {
     mutation.mutate({
       name: form.name.trim().slice(0, 120),
       email: form.email.trim().slice(0, 255) || null,
-      social_link: form.social_link.trim().slice(0, 500) || null,
+      facebook: form.facebook.trim().slice(0, 500) || null,
+      instagram: form.instagram.trim().slice(0, 500) || null,
+      social_link: form.facebook.trim().slice(0, 500) || null,
       message: form.message.trim().slice(0, 2000),
     });
   };
+
 
   const inputClass =
     "w-full rounded-sm border border-gold-soft/30 bg-ink/30 px-4 py-3 text-sm text-primary-foreground placeholder:text-primary-foreground/40 focus:border-gold-soft focus:outline-none";

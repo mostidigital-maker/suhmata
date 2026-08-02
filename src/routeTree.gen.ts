@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VideosRouteImport } from './routes/videos'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as ContributeRouteImport } from './routes/contribute'
@@ -25,6 +26,11 @@ import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
 import { Route as ArchiveSlugRouteImport } from './routes/archive/$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
+const VideosRoute = VideosRouteImport.update({
+  id: '/videos',
+  path: '/videos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/contribute': typeof ContributeRoute
   '/map': typeof MapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/videos': typeof VideosRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/archive/$slug': typeof ArchiveSlugRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/contribute': typeof ContributeRoute
   '/map': typeof MapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/videos': typeof VideosRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/archive/$slug': typeof ArchiveSlugRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/contribute': typeof ContributeRoute
   '/map': typeof MapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/videos': typeof VideosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/archive/$slug': typeof ArchiveSlugRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/contribute'
     | '/map'
     | '/sitemap.xml'
+    | '/videos'
     | '/admin'
     | '/archive/$slug'
     | '/articles/$slug'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
     | '/contribute'
     | '/map'
     | '/sitemap.xml'
+    | '/videos'
     | '/admin'
     | '/archive/$slug'
     | '/articles/$slug'
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/contribute'
     | '/map'
     | '/sitemap.xml'
+    | '/videos'
     | '/_authenticated/admin'
     | '/archive/$slug'
     | '/articles/$slug'
@@ -209,6 +221,7 @@ export interface RootRouteChildren {
   ContributeRoute: typeof ContributeRoute
   MapRoute: typeof MapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  VideosRoute: typeof VideosRoute
   ArchiveSlugRoute: typeof ArchiveSlugRoute
   ArticlesSlugRoute: typeof ArticlesSlugRoute
   EventsSlugRoute: typeof EventsSlugRoute
@@ -221,6 +234,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/videos': {
+      id: '/videos'
+      path: '/videos'
+      fullPath: '/videos'
+      preLoaderRoute: typeof VideosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -347,6 +367,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContributeRoute: ContributeRoute,
   MapRoute: MapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  VideosRoute: VideosRoute,
   ArchiveSlugRoute: ArchiveSlugRoute,
   ArticlesSlugRoute: ArticlesSlugRoute,
   EventsSlugRoute: EventsSlugRoute,
