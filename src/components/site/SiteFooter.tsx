@@ -13,10 +13,11 @@ export function SiteFooter() {
   const socials = [
     { label: "Facebook", href: settings?.facebook },
     { label: "Instagram", href: settings?.instagram },
-    { label: "WhatsApp", href: settings?.whatsapp },
+    { label: lang === "ar" ? "مجموعة واتساب" : "WhatsApp Community", href: settings?.whatsapp },
     { label: "Google Maps", href: settings?.google_maps },
     { label: "Waze", href: settings?.waze },
   ].filter((item) => Boolean(item.href));
+
 
   return (
     <footer className="paper-grain border-t border-border bg-secondary px-5 py-16 sm:px-8">

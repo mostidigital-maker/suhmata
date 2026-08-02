@@ -20,8 +20,31 @@ export const mainNav: NavItem[] = [
   { id: "gallery", to: "/gallery", label: { ar: "المعرض", en: "Gallery" } },
   { id: "archive", to: "/archive", label: { ar: "الأرشيف", en: "Archive" } },
   { id: "map", to: "/map", label: { ar: "الخريطة", en: "Map" } },
+  { id: "videos", to: "/videos", label: { ar: "فيديوهات الزوار", en: "Visitor videos" } },
   { id: "contribute", to: "/contribute", label: { ar: "شارك", en: "Contribute" } },
 ];
+
+export const videosPage = {
+  eyebrow: { ar: "فيديوهات الزوار", en: "Visitor videos" },
+  title: { ar: "ذاكرة مصوّرة من الزوار", en: "Filmed memories from visitors" },
+  body: {
+    ar: "شاهد الفيديوهات التي شاركها الزوار، أو أرسل فيديوك. يبقى كل فيديو قيد المراجعة حتى يوافق عليه فريق الأرشيف.",
+    en: "Watch videos shared by visitors, or send your own. Every video stays pending until the archive team approves it.",
+  },
+  upload: { ar: "أرسل فيديو", en: "Upload a video" },
+  uploadFile: { ar: "ملف الفيديو", en: "Video file" },
+  orLink: { ar: "أو رابط فيديو (يوتيوب، فيسبوك…)", en: "Or a video link (YouTube, Facebook…)" },
+  empty: { ar: "لا توجد فيديوهات منشورة بعد.", en: "No published videos yet." },
+} satisfies Record<string, LocalizedText>;
+
+export const locationActions = {
+  openMaps: { ar: "افتح في خرائط Google", en: "Open Google Maps" },
+  openWaze: { ar: "افتح في Waze", en: "Open Waze" },
+  facebook: { ar: "فيسبوك", en: "Facebook" },
+  instagram: { ar: "إنستغرام", en: "Instagram" },
+  whatsapp: { ar: "مجموعة واتساب", en: "WhatsApp Community" },
+} satisfies Record<string, LocalizedText>;
+
 
 export const ui = {
   loading: { ar: "جارٍ التحميل…", en: "Loading…" },

@@ -7,6 +7,7 @@ import {
   fetchArticleBySlug,
   fetchArticles,
   fetchApprovedContributions,
+  fetchApprovedVideos,
   fetchAssociationMessage,
   fetchCategories,
   fetchEventBySlug,
@@ -110,4 +111,9 @@ export const contentQueries = {
     }),
   guestbook: (limit = 6) =>
     queryOptions({ queryKey: ["guestbook", limit], queryFn: () => fetchGuestbook(limit) }),
+  approvedVideos: (limit = 24) =>
+    queryOptions({
+      queryKey: ["visitor_videos", "approved", limit],
+      queryFn: () => fetchApprovedVideos(limit),
+    }),
 };
