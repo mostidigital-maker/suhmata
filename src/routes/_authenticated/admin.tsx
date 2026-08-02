@@ -29,58 +29,89 @@ function AdminPage() {
   const { data: roles = [] } = useQuery({ queryKey: ["my-roles"], queryFn: fetchMyRoles });
   const isStaff = roles.includes("admin") || roles.includes("editor");
 
-  const { data: pendingStories = [] } = useQuery({
-    queryKey: ["admin", "guestbook", "pending"],
+  const { data: stories = [] } = useQuery({
+    queryKey: ["admin", "guestbook", "all"],
     enabled: isStaff,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("guestbook")
         .select("*")
-        .eq("approved", false)
         .order("created_at", { ascending: false });
       if (error) throw new Error(error.message);
       return data;
     },
   });
 
-  const { data: pendingVideos = [] } = useQuery({
-    queryKey: ["admin", "videos", "pending"],
+  const { data: videos = [] } = useQuery({
+    queryKey: ["admin", "videos", "all"],
     enabled: isStaff,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("visitor_videos")
         .select("*")
-        .eq("status", "pending")
         .order("created_at", { ascending: false });
       if (error) throw new Error(error.message);
       return data;
     },
   });
 
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["admin"] });
+    queryClient.invalidateQueries({ queryKey: ["guestbook"] });
+    queryClient.invalidateQueries({ queryKey: ["visitor_videos"] });
+  };
+
   const moderateStory = useMutation({
-    mutationFn: async ({ id, approved }: { id: string; approved: boolean }) => {
-      const query = approved
-        ? supabase.from("guestbook").update({ approved: true }).eq("id", id)
-        : supabase.from("guestbook").delete().eq("id", id);
+    mutationFn: async ({
+      id,
+      action,
+    }: {
+      id: string;
+      action: "approve" | "hide" | "show" | "delete";
+    }) => {
+      const query =
+        action === "delete"
+          ? supabase.from("guestbook").delete().eq("id", id)
+          : supabase
+              .from("guestbook")
+              .update(
+                action === "approve"
+                  ? { approved: true, hidden: false }
+                  : { hidden: action === "hide" },
+              )
+              .eq("id", id);
       const { error } = await query;
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       toast.success("Updated");
-      queryClient.invalidateQueries({ queryKey: ["admin", "guestbook", "pending"] });
-      queryClient.invalidateQueries({ queryKey: ["guestbook"] });
+      invalidate();
     },
     onError: (error: Error) => toast.error(error.message),
   });
 
   const moderateVideo = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: "approved" | "rejected" }) => {
-      const { error } = await supabase.from("visitor_videos").update({ status }).eq("id", id);
+    mutationFn: async ({
+      id,
+      status,
+      remove,
+    }: {
+      id: string;
+      status?: "approved" | "rejected" | "pending";
+      remove?: boolean;
+    }) => {
+      const query = remove
+        ? supabase.from("visitor_videos").delete().eq("id", id)
+        : supabase
+            .from("visitor_videos")
+            .update({ status: status ?? "pending" })
+            .eq("id", id);
+      const { error } = await query;
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       toast.success("Updated");
-      queryClient.invalidateQueries({ queryKey: ["admin", "videos", "pending"] });
+      invalidate();
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -93,7 +124,10 @@ function AdminPage() {
   };
 
   const btn =
-    "rounded-full px-4 py-1.5 text-xs font-medium transition-colors border border-border hover:border-accent";
+    "min-h-11 rounded-full px-4 py-1.5 text-xs font-medium transition-colors border border-border hover:border-accent";
+
+  const pendingStories = stories.filter((entry) => !entry.approved).length;
+  const pendingVideos = videos.filter((video) => video.status === "pending").length;
 
   return (
     <main className="paper-grain min-h-screen bg-secondary px-5 py-14">
@@ -124,25 +158,47 @@ function AdminPage() {
           <>
             <section className="mt-12">
               <h2 className="text-sm tracking-[0.25em] text-olive uppercase">
-                Guestbook · بانتظار المراجعة ({pendingStories.length})
+                Guestbook · {stories.length} ({pendingStories} pending)
               </h2>
               <div className="mt-4 grid gap-4">
-                {pendingStories.map((entry) => (
+                {stories.map((entry) => (
                   <article key={entry.id} className="rounded-sm border border-border bg-card p-5">
-                    <p className="font-display text-lg">{entry.name}</p>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="font-display text-lg">{entry.name}</p>
+                      <span className="rounded-full border border-border px-2.5 py-0.5 text-[0.65rem] tracking-widest text-muted-foreground uppercase">
+                        {!entry.approved ? "pending" : entry.hidden ? "hidden" : "published"}
+                      </span>
+                    </div>
                     <p className="mt-2 leading-loose text-muted-foreground">{entry.message}</p>
-                    <div className="mt-4 flex gap-3">
+                    <p className="mt-2 text-xs break-all text-muted-foreground">
+                      {[entry.email, entry.facebook, entry.instagram].filter(Boolean).join(" · ")}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      {!entry.approved ? (
+                        <button
+                          className={btn}
+                          onClick={() => moderateStory.mutate({ id: entry.id, action: "approve" })}
+                        >
+                          نشر · Approve
+                        </button>
+                      ) : (
+                        <button
+                          className={btn}
+                          onClick={() =>
+                            moderateStory.mutate({
+                              id: entry.id,
+                              action: entry.hidden ? "show" : "hide",
+                            })
+                          }
+                        >
+                          {entry.hidden ? "إظهار · Show" : "إخفاء · Hide"}
+                        </button>
+                      )}
                       <button
                         className={btn}
-                        onClick={() => moderateStory.mutate({ id: entry.id, approved: true })}
+                        onClick={() => moderateStory.mutate({ id: entry.id, action: "delete" })}
                       >
-                        نشر
-                      </button>
-                      <button
-                        className={btn}
-                        onClick={() => moderateStory.mutate({ id: entry.id, approved: false })}
-                      >
-                        حذف
+                        حذف · Delete
                       </button>
                     </div>
                   </article>
@@ -152,12 +208,17 @@ function AdminPage() {
 
             <section className="mt-12">
               <h2 className="text-sm tracking-[0.25em] text-olive uppercase">
-                Visitor videos · بانتظار المراجعة ({pendingVideos.length})
+                Visitor videos · {videos.length} ({pendingVideos} pending)
               </h2>
               <div className="mt-4 grid gap-4">
-                {pendingVideos.map((video) => (
+                {videos.map((video) => (
                   <article key={video.id} className="rounded-sm border border-border bg-card p-5">
-                    <p className="font-display text-lg">{video.visitor_name}</p>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="font-display text-lg">{video.visitor_name}</p>
+                      <span className="rounded-full border border-border px-2.5 py-0.5 text-[0.65rem] tracking-widest text-muted-foreground uppercase">
+                        {video.status}
+                      </span>
+                    </div>
                     <a
                       href={video.video_url}
                       target="_blank"
@@ -166,18 +227,33 @@ function AdminPage() {
                     >
                       {video.video_url}
                     </a>
-                    <div className="mt-4 flex gap-3">
-                      <button
-                        className={btn}
-                        onClick={() => moderateVideo.mutate({ id: video.id, status: "approved" })}
-                      >
-                        قبول
-                      </button>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      {video.status !== "approved" ? (
+                        <button
+                          className={btn}
+                          onClick={() => moderateVideo.mutate({ id: video.id, status: "approved" })}
+                        >
+                          قبول · Approve
+                        </button>
+                      ) : (
+                        <button
+                          className={btn}
+                          onClick={() => moderateVideo.mutate({ id: video.id, status: "pending" })}
+                        >
+                          إخفاء · Hide
+                        </button>
+                      )}
                       <button
                         className={btn}
                         onClick={() => moderateVideo.mutate({ id: video.id, status: "rejected" })}
                       >
-                        رفض
+                        رفض · Reject
+                      </button>
+                      <button
+                        className={btn}
+                        onClick={() => moderateVideo.mutate({ id: video.id, remove: true })}
+                      >
+                        حذف · Delete
                       </button>
                     </div>
                   </article>
@@ -190,3 +266,4 @@ function AdminPage() {
     </main>
   );
 }
+
