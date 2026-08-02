@@ -428,7 +428,10 @@ export type Database = {
           approved: boolean
           created_at: string
           email: string | null
+          facebook: string | null
+          hidden: boolean
           id: string
+          instagram: string | null
           message: string
           name: string
           social_link: string | null
@@ -437,7 +440,10 @@ export type Database = {
           approved?: boolean
           created_at?: string
           email?: string | null
+          facebook?: string | null
+          hidden?: boolean
           id?: string
+          instagram?: string | null
           message: string
           name: string
           social_link?: string | null
@@ -446,7 +452,10 @@ export type Database = {
           approved?: boolean
           created_at?: string
           email?: string | null
+          facebook?: string | null
+          hidden?: boolean
           id?: string
+          instagram?: string | null
           message?: string
           name?: string
           social_link?: string | null
@@ -629,6 +638,7 @@ export type Database = {
           id: string
           instagram: string | null
           logo: string | null
+          map_embed_url: string | null
           waze: string | null
           whatsapp: string | null
         }
@@ -640,6 +650,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           logo?: string | null
+          map_embed_url?: string | null
           waze?: string | null
           whatsapp?: string | null
         }
@@ -651,6 +662,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           logo?: string | null
+          map_embed_url?: string | null
           waze?: string | null
           whatsapp?: string | null
         }
