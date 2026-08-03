@@ -9,12 +9,14 @@ export function PageShell({ children }: { children: ReactNode }) {
     <>
       <a
         href="#main"
-        className="sr-only rounded-sm bg-accent px-4 py-2 text-accent-foreground focus:not-sr-only focus:absolute focus:top-3 focus:start-3 focus:z-[100]"
+        className="btn-base btn-gold sr-only focus:not-sr-only focus:absolute focus:top-3 focus:start-3 focus:z-[100]"
       >
         Skip to content
       </a>
       <SiteHeader />
-      <main id="main">{children}</main>
+      <main id="main" tabIndex={-1}>
+        {children}
+      </main>
       <SiteFooter />
       <Toaster position="top-center" />
     </>

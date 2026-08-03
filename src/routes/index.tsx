@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Toaster } from "sonner";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
-import { SiteHeader } from "@/components/site/SiteHeader";
+import { PageShell } from "@/components/site/PageShell";
 import { HeroSection } from "@/components/site/HeroSection";
 import { WelcomeSection } from "@/components/site/WelcomeSection";
 import { HistorySection } from "@/components/site/HistorySection";
@@ -10,7 +9,6 @@ import { EventsSection } from "@/components/site/EventsSection";
 import { GallerySection } from "@/components/site/GallerySection";
 import { StoriesSection } from "@/components/site/StoriesSection";
 import { LocationSection } from "@/components/site/LocationSection";
-import { SiteFooter } from "@/components/site/SiteFooter";
 
 const title = "قرية [اسم القرية] — أرشيف التراث الفلسطيني قبل ١٩٤٨";
 const description =
@@ -24,7 +22,27 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "/" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
+    ],
+    links: [{ rel: "canonical", href: "/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: title,
+          description,
+          inLanguage: ["ar", "en"],
+          publisher: {
+            "@type": "Organization",
+            name: "Village Heritage & Memory Association",
+          },
+        }),
+      },
     ],
   }),
   component: Index,
@@ -33,8 +51,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <LanguageProvider>
-      <SiteHeader />
-      <main>
+      <PageShell>
         <HeroSection />
         <WelcomeSection />
         <HistorySection />
@@ -43,9 +60,7 @@ function Index() {
         <GallerySection />
         <StoriesSection />
         <LocationSection />
-      </main>
-      <SiteFooter />
-      <Toaster position="top-center" />
+      </PageShell>
     </LanguageProvider>
   );
 }
