@@ -15,7 +15,7 @@ export function HistorySection() {
 
   return (
     <SectionShell id="history" eyebrow={t(s.eyebrow)} title={t(s.title)} body={t(s.body)}>
-      <div className="mt-14 grid gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <div className="mt-16 grid gap-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <Reveal className="lg:sticky lg:top-28 lg:self-start">
           <figure className="sepia-frame overflow-hidden rounded-sm">
             <img
@@ -33,8 +33,8 @@ export function HistorySection() {
           {entries.map((entry, i) => (
             <li key={entry.id} className="relative">
               <span className="absolute -start-[2.05rem] top-2 h-2.5 w-2.5 rounded-full bg-accent ring-4 ring-background" />
-              <Reveal delay={i * 90}>
-                <h3 className="text-2xl font-semibold">{field(entry, "title")}</h3>
+              <Reveal delay={i * 90} variant="unfurl">
+                <h3 className="text-h3 font-semibold">{field(entry, "title")}</h3>
                 <p className="mt-3 leading-loose text-muted-foreground">
                   {field(entry, "content")}
                 </p>

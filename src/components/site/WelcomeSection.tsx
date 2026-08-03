@@ -20,9 +20,9 @@ export function WelcomeSection() {
       eyebrow={t(s.eyebrow)}
       title={field(message, "title") || t(s.title)}
     >
-      <div className="mt-12 grid gap-10 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:items-center">
+      <div className="mt-14 grid gap-12 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:items-center">
         <Reveal>
-          <blockquote className="border-s-2 border-accent/70 ps-6 text-lg leading-loose text-foreground/90">
+          <blockquote className="border-s-2 border-accent/70 ps-6 font-display text-2xl leading-relaxed text-foreground/90">
             {field(message, "content")}
           </blockquote>
           <div className="mt-8">

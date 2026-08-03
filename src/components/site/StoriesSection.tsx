@@ -53,7 +53,7 @@ export function StoriesSection() {
 
 
   const inputClass =
-    "w-full rounded-sm border border-gold-soft/30 bg-ink/30 px-4 py-3 text-sm text-primary-foreground placeholder:text-primary-foreground/40 focus:border-gold-soft focus:outline-none";
+    "min-h-11 w-full rounded-sm border border-gold-soft/30 bg-ink/30 px-4 py-3 text-sm text-primary-foreground transition-colors duration-300 placeholder:text-primary-foreground/40 focus:border-gold-soft focus:outline-none";
 
   return (
     <SectionShell
