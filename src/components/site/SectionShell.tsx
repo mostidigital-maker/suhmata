@@ -23,14 +23,17 @@ export function SectionShell({
     <section
       id={id}
       className={cn(
-        "scroll-mt-24 px-5 py-20 sm:px-8 md:py-28",
+        "content-auto relative scroll-mt-24 px-gutter py-section",
         tone === "paper" && "bg-background",
         tone === "sand" && "paper-grain bg-secondary",
         tone === "deep" && "bg-primary text-primary-foreground",
         className,
       )}
     >
-      <div className="mx-auto max-w-6xl">
+      {/* Woven seam marking the transition from the previous section. */}
+      <div aria-hidden className="section-seam pointer-events-none absolute inset-x-0 top-0" />
+
+      <div className="relative mx-auto max-w-6xl">
         <Reveal>
           <SectionHeading eyebrow={eyebrow} title={title} body={body} tone={tone} />
         </Reveal>
@@ -55,20 +58,22 @@ export function SectionHeading({
     <header className="max-w-2xl">
       <p
         className={cn(
-          "font-body text-[0.7rem] tracking-[0.35em] uppercase",
+          "font-body text-[0.7rem] tracking-[0.38em] uppercase",
           tone === "deep" ? "text-gold-soft" : "text-olive",
         )}
       >
         {eyebrow}
       </p>
-      <h2 className="mt-4 text-3xl leading-tight font-semibold sm:text-4xl md:text-5xl">
-        {title}
-      </h2>
-      <div className="mt-5 h-px w-24 bg-accent/70" />
+      <h2 className="mt-5 text-h2 font-semibold">{title}</h2>
+      <div className="mt-6 flex items-center gap-3" aria-hidden>
+        <span className="h-px w-20 bg-accent/70" />
+        <span className="h-1.5 w-1.5 rotate-45 bg-accent/80" />
+        <span className="h-px w-10 bg-accent/40" />
+      </div>
       {body ? (
         <p
           className={cn(
-            "mt-6 text-base leading-loose",
+            "mt-7 text-lede",
             tone === "deep" ? "text-primary-foreground/80" : "text-muted-foreground",
           )}
         >
