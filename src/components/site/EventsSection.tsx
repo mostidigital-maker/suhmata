@@ -24,23 +24,23 @@ export function EventsSection() {
 
   return (
     <SectionShell id="events" eyebrow={t(s.eyebrow)} title={t(s.title)} body={t(s.body)}>
-      <ul className="mt-12 divide-y divide-border border-y border-border">
+      <ul className="mt-14 divide-y divide-border border-y border-border">
         {events.map((item, i) => {
           const { day, month } = parts(item.event_date);
           return (
-            <Reveal key={item.id} delay={i * 80}>
-              <li className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-5 py-7 sm:gap-8">
-                <div className="grid h-16 w-16 shrink-0 place-items-center rounded-sm border border-accent/50 bg-secondary sm:h-20 sm:w-20">
+            <Reveal key={item.id} delay={i * 90} variant="unfurl">
+              <li className="group grid grid-cols-[auto_minmax(0,1fr)] items-start gap-5 py-8 transition-colors duration-500 hover:bg-secondary/40 sm:gap-8">
+                <div className="grid h-16 w-16 shrink-0 place-items-center rounded-sm border border-accent/50 bg-secondary shadow-[var(--shadow-frame)] transition-transform duration-500 group-hover:-translate-y-1 sm:h-20 sm:w-20">
                   <span className="font-display text-2xl font-semibold">{day}</span>
                   <span className="text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase">
                     {month}
                   </span>
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-xl font-semibold sm:text-2xl">{field(item, "title")}</h3>
+                  <h3 className="text-h3 font-semibold">{field(item, "title")}</h3>
                   {item.location ? (
                     <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-olive">
-                      <MapPin className="h-3.5 w-3.5 shrink-0" />
+                      <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
                       {item.location}
                     </p>
                   ) : null}

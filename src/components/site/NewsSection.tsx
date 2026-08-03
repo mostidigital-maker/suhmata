@@ -21,22 +21,23 @@ export function NewsSection() {
 
   return (
     <SectionShell id="news" tone="sand" eyebrow={t(s.eyebrow)} title={t(s.title)} body={t(s.body)}>
-      <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {articles.map((item, i) => (
-          <Reveal key={item.id} delay={i * 90}>
-            <article className="flex h-full flex-col rounded-sm border border-border bg-card p-6 transition-shadow duration-500 hover:shadow-[var(--shadow-lift)]">
+          <Reveal key={item.id} delay={i * 110} variant="veil" className="h-full">
+            <article className="card-museum flex h-full flex-col rounded-sm p-7">
               <div className="flex items-center justify-between gap-3">
                 <time className="text-[0.7rem] tracking-[0.25em] text-muted-foreground uppercase">
                   {formatDate(item.created_at)}
                 </time>
                 {item.featured ? (
-                  <span className="inline-flex items-center rounded-full border border-accent/50 px-2.5 py-0.5 text-[0.6rem] tracking-[0.2em] text-olive uppercase">
+                  <span className="inline-flex items-center rounded-full border border-accent/50 bg-accent/10 px-2.5 py-0.5 text-[0.6rem] tracking-[0.2em] text-olive uppercase">
                     {lang === "ar" ? "مميّز" : "Featured"}
                   </span>
                 ) : null}
               </div>
-              <h3 className="mt-4 text-xl leading-snug font-semibold">{field(item, "title")}</h3>
-              <p className="mt-3 grow leading-loose text-muted-foreground">
+              <h3 className="mt-5 text-h3 font-semibold">{field(item, "title")}</h3>
+              <span aria-hidden className="mt-4 block h-px w-12 bg-accent/50" />
+              <p className="mt-4 grow leading-loose text-muted-foreground">
                 {field(item, "content")}
               </p>
             </article>
