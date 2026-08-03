@@ -25,9 +25,9 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-colors duration-500",
+        "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,box-shadow] duration-700",
         scrolled || open
-          ? "border-b border-border/70 bg-background/92 backdrop-blur-md"
+          ? "border-b border-accent/25 bg-background/92 shadow-[0_1px_0_0_color-mix(in_oklab,var(--gold)_25%,transparent)] backdrop-blur-md"
           : "border-b border-transparent",
       )}
     >
@@ -70,7 +70,7 @@ export function SiteHeader() {
               to={item.to as "/"}
               hash={item.hash}
               className={cn(
-                "text-sm transition-colors duration-300 hover:text-accent",
+                "link-quill text-sm transition-colors duration-300 hover:text-accent",
                 scrolled ? "text-foreground/80" : "text-parchment/85",
               )}
             >
@@ -87,7 +87,7 @@ export function SiteHeader() {
             aria-expanded={open}
             aria-label={t(site.menu)}
             className={cn(
-              "grid h-9 w-9 shrink-0 place-items-center rounded-full border transition-colors lg:hidden",
+              "grid h-11 w-11 shrink-0 place-items-center rounded-full border transition-colors lg:hidden",
               scrolled || open
                 ? "border-border text-foreground"
                 : "border-parchment/40 text-parchment",
@@ -107,7 +107,7 @@ export function SiteHeader() {
                   to={item.to as "/"}
                   hash={item.hash}
                   onClick={() => setOpen(false)}
-                  className="block py-3 text-sm text-foreground/85 transition-colors hover:text-accent"
+                  className="block min-h-11 py-3.5 text-sm text-foreground/85 transition-colors hover:text-accent"
                 >
                   {item.label[lang]}
                 </Link>
