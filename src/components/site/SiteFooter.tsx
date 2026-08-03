@@ -20,7 +20,7 @@ export function SiteFooter() {
 
 
   return (
-    <footer className="paper-grain border-t border-border bg-secondary px-5 py-16 sm:px-8">
+    <footer className="paper-grain border-t border-border bg-secondary px-gutter py-20">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
@@ -45,7 +45,7 @@ export function SiteFooter() {
                 <li key={item.id}>
                   <a
                     href={`#${item.id}`}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="link-quill inline-block min-h-8 text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {item[lang]}
                   </a>
@@ -81,7 +81,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="gold-rule mt-12" />
+        <div className="ornament mt-14" aria-hidden><span className="h-1.5 w-1.5 rotate-45 bg-current" /></div>
 
         <div className="mt-6 flex flex-col items-center justify-between gap-3 text-xs text-muted-foreground sm:flex-row">
           <p>

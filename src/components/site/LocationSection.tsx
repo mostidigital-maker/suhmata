@@ -30,7 +30,7 @@ export function LocationSection() {
 
   return (
     <SectionShell id="location" eyebrow={t(s.eyebrow)} title={t(s.title)} body={t(s.body)}>
-      <div className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:items-start">
+      <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:items-start">
         <Reveal>
           <div className="grid gap-6">
             <figure className="sepia-frame overflow-hidden rounded-sm">
@@ -57,7 +57,7 @@ export function LocationSection() {
                     href={href as string}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90"
+                    className="btn-base btn-gold"
                   >
                     <Icon className="h-4 w-4" aria-hidden />
                     {label}
@@ -74,7 +74,7 @@ export function LocationSection() {
                     href={href as string}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-accent/50 px-6 py-3 text-sm font-medium text-olive transition-colors hover:bg-accent hover:text-accent-foreground"
+                    className="btn-base btn-outline-gold text-olive"
                   >
                     <Icon className="h-4 w-4" aria-hidden />
                     {label}
