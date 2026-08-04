@@ -31,6 +31,23 @@ import {
   type ArchiveKind,
   type ContributionKind,
 } from "./content";
+import {
+  fetchCampaignBySlug,
+  fetchDonationCampaigns,
+  fetchPaymentMethods,
+  fetchPublicDonations,
+} from "./donations";
+import {
+  fetchChildren,
+  fetchFamilyMemberBySlug,
+  fetchFamilyMembers,
+  fetchMemorialBySlug,
+  fetchMemorials,
+  fetchTimeline,
+  fetchTimelineEntryBySlug,
+} from "./heritage";
+import { fetchNotificationLog } from "./notifications";
+import { searchSite, type SearchEntityType } from "./search";
 
 export const contentQueries = {
   hero: () => queryOptions({ queryKey: ["hero_content"], queryFn: fetchHeroContent }),
@@ -115,5 +132,74 @@ export const contentQueries = {
     queryOptions({
       queryKey: ["visitor_videos", "approved", limit],
       queryFn: () => fetchApprovedVideos(limit),
+    }),
+};
+
+/**
+ * Query factories for the future-facing modules. Kept in their own namespaces
+ * so a feature can be shipped (or removed) without touching `contentQueries`.
+ */
+export const donationQueries = {
+  paymentMethods: () =>
+    queryOptions({ queryKey: ["payment_methods"], queryFn: fetchPaymentMethods }),
+  campaigns: () =>
+    queryOptions({ queryKey: ["donation_campaigns"], queryFn: fetchDonationCampaigns }),
+  campaign: (slug: string) =>
+    queryOptions({
+      queryKey: ["donation_campaigns", "slug", slug],
+      queryFn: () => fetchCampaignBySlug(slug),
+    }),
+  publicDonations: (campaignId: string | null = null) =>
+    queryOptions({
+      queryKey: ["donations", "public", campaignId],
+      queryFn: () => fetchPublicDonations(campaignId),
+    }),
+};
+
+export const heritageQueries = {
+  familyMembers: (familyName: string | null = null) =>
+    queryOptions({
+      queryKey: ["family_members", familyName],
+      queryFn: () => fetchFamilyMembers(familyName),
+    }),
+  familyMember: (slug: string) =>
+    queryOptions({
+      queryKey: ["family_members", "slug", slug],
+      queryFn: () => fetchFamilyMemberBySlug(slug),
+    }),
+  children: (parentId: string | undefined) =>
+    queryOptions({
+      queryKey: ["family_members", "children", parentId],
+      enabled: Boolean(parentId),
+      queryFn: () => (parentId ? fetchChildren(parentId) : Promise.resolve([])),
+    }),
+
+  timeline: () => queryOptions({ queryKey: ["timeline_entries"], queryFn: fetchTimeline }),
+  timelineEntry: (slug: string) =>
+    queryOptions({
+      queryKey: ["timeline_entries", "slug", slug],
+      queryFn: () => fetchTimelineEntryBySlug(slug),
+    }),
+
+  memorials: (limit = 48) =>
+    queryOptions({ queryKey: ["memorials", limit], queryFn: () => fetchMemorials(limit) }),
+  memorial: (slug: string) =>
+    queryOptions({ queryKey: ["memorials", "slug", slug], queryFn: () => fetchMemorialBySlug(slug) }),
+};
+
+export const searchQueries = {
+  site: (term: string, types: SearchEntityType[] = []) =>
+    queryOptions({
+      queryKey: ["search_index", term, types],
+      enabled: term.trim().length > 1,
+      queryFn: () => searchSite({ term, types }),
+    }),
+};
+
+export const notificationQueries = {
+  log: (limit = 50) =>
+    queryOptions({
+      queryKey: ["notification_log", limit],
+      queryFn: () => fetchNotificationLog(limit),
     }),
 };
