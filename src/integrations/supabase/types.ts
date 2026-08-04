@@ -284,6 +284,129 @@ export type Database = {
         }
         Relationships: []
       }
+      donation_campaigns: {
+        Row: {
+          active: boolean
+          cover_image: string | null
+          created_at: string
+          currency: string
+          description_ar: string
+          description_en: string
+          ends_at: string | null
+          goal_amount: number
+          id: string
+          raised_amount: number
+          slug: string
+          sort_order: number
+          starts_at: string | null
+          title_ar: string
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          cover_image?: string | null
+          created_at?: string
+          currency?: string
+          description_ar?: string
+          description_en?: string
+          ends_at?: string | null
+          goal_amount?: number
+          id?: string
+          raised_amount?: number
+          slug: string
+          sort_order?: number
+          starts_at?: string | null
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          cover_image?: string | null
+          created_at?: string
+          currency?: string
+          description_ar?: string
+          description_en?: string
+          ends_at?: string | null
+          goal_amount?: number
+          id?: string
+          raised_amount?: number
+          slug?: string
+          sort_order?: number
+          starts_at?: string | null
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      donations: {
+        Row: {
+          amount: number
+          anonymous: boolean
+          campaign_id: string | null
+          created_at: string
+          currency: string
+          donor_email: string | null
+          donor_name: string | null
+          id: string
+          is_public: boolean
+          message: string | null
+          payment_method_id: string | null
+          reference: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          anonymous?: boolean
+          campaign_id?: string | null
+          created_at?: string
+          currency?: string
+          donor_email?: string | null
+          donor_name?: string | null
+          id?: string
+          is_public?: boolean
+          message?: string | null
+          payment_method_id?: string | null
+          reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          anonymous?: boolean
+          campaign_id?: string | null
+          created_at?: string
+          currency?: string
+          donor_email?: string | null
+          donor_name?: string | null
+          id?: string
+          is_public?: boolean
+          message?: string | null
+          payment_method_id?: string | null
+          reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "donations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "donation_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "donations_payment_method_id_fkey"
+            columns: ["payment_method_id"]
+            isOneToOne: false
+            referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_media: {
         Row: {
           caption_ar: string
@@ -372,6 +495,94 @@ export type Database = {
           title_en?: string
         }
         Relationships: []
+      }
+      family_members: {
+        Row: {
+          birth_year: string | null
+          created_at: string
+          death_year: string | null
+          family_name_ar: string
+          family_name_en: string
+          father_id: string | null
+          full_name_ar: string
+          full_name_en: string
+          gender: string | null
+          id: string
+          mother_id: string | null
+          notes_ar: string
+          notes_en: string
+          photo: string | null
+          published: boolean
+          slug: string
+          sort_order: number
+          spouse_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          birth_year?: string | null
+          created_at?: string
+          death_year?: string | null
+          family_name_ar?: string
+          family_name_en?: string
+          father_id?: string | null
+          full_name_ar?: string
+          full_name_en?: string
+          gender?: string | null
+          id?: string
+          mother_id?: string | null
+          notes_ar?: string
+          notes_en?: string
+          photo?: string | null
+          published?: boolean
+          slug: string
+          sort_order?: number
+          spouse_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          birth_year?: string | null
+          created_at?: string
+          death_year?: string | null
+          family_name_ar?: string
+          family_name_en?: string
+          father_id?: string | null
+          full_name_ar?: string
+          full_name_en?: string
+          gender?: string | null
+          id?: string
+          mother_id?: string | null
+          notes_ar?: string
+          notes_en?: string
+          photo?: string | null
+          published?: boolean
+          slug?: string
+          sort_order?: number
+          spouse_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_members_father_id_fkey"
+            columns: ["father_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_members_mother_id_fkey"
+            columns: ["mother_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_members_spouse_id_fkey"
+            columns: ["spouse_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       gallery: {
         Row: {
@@ -608,6 +819,205 @@ export type Database = {
         }
         Relationships: []
       }
+      memorials: {
+        Row: {
+          biography_ar: string
+          biography_en: string
+          birth_year: string | null
+          created_at: string
+          death_year: string | null
+          family_member_id: string | null
+          full_name_ar: string
+          full_name_en: string
+          id: string
+          photo: string | null
+          published: boolean
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          biography_ar?: string
+          biography_en?: string
+          birth_year?: string | null
+          created_at?: string
+          death_year?: string | null
+          family_member_id?: string | null
+          full_name_ar?: string
+          full_name_en?: string
+          id?: string
+          photo?: string | null
+          published?: boolean
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          biography_ar?: string
+          biography_en?: string
+          birth_year?: string | null
+          created_at?: string
+          death_year?: string | null
+          family_member_id?: string | null
+          full_name_ar?: string
+          full_name_en?: string
+          id?: string
+          photo?: string | null
+          published?: boolean
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memorials_family_member_id_fkey"
+            columns: ["family_member_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_log: {
+        Row: {
+          body: string | null
+          channel: string
+          created_at: string
+          error: string | null
+          id: string
+          sent_at: string | null
+          status: string
+          subject: string | null
+          subscriber_id: string | null
+          topic: string | null
+        }
+        Insert: {
+          body?: string | null
+          channel?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          subscriber_id?: string | null
+          topic?: string | null
+        }
+        Update: {
+          body?: string | null
+          channel?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          subscriber_id?: string | null
+          topic?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_log_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "notification_subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_subscribers: {
+        Row: {
+          channel: string
+          confirmed: boolean
+          created_at: string
+          email: string | null
+          id: string
+          language: string
+          push_endpoint: string | null
+          push_keys: Json | null
+          topics: string[]
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          channel?: string
+          confirmed?: boolean
+          created_at?: string
+          email?: string | null
+          id?: string
+          language?: string
+          push_endpoint?: string | null
+          push_keys?: Json | null
+          topics?: string[]
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          confirmed?: boolean
+          created_at?: string
+          email?: string | null
+          id?: string
+          language?: string
+          push_endpoint?: string | null
+          push_keys?: Json | null
+          topics?: string[]
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          account_details: string | null
+          active: boolean
+          created_at: string
+          external_url: string | null
+          id: string
+          instructions_ar: string
+          instructions_en: string
+          kind: string
+          logo: string | null
+          name_ar: string
+          name_en: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          account_details?: string | null
+          active?: boolean
+          created_at?: string
+          external_url?: string | null
+          id?: string
+          instructions_ar?: string
+          instructions_en?: string
+          kind?: string
+          logo?: string | null
+          name_ar?: string
+          name_en?: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          account_details?: string | null
+          active?: boolean
+          created_at?: string
+          external_url?: string | null
+          id?: string
+          instructions_ar?: string
+          instructions_en?: string
+          kind?: string
+          logo?: string | null
+          name_ar?: string
+          name_en?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -626,6 +1036,54 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+        }
+        Relationships: []
+      }
+      search_index: {
+        Row: {
+          body_ar: string
+          body_en: string
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          published: boolean
+          route: string | null
+          slug: string | null
+          thumbnail: string | null
+          title_ar: string
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          body_ar?: string
+          body_en?: string
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          published?: boolean
+          route?: string | null
+          slug?: string | null
+          thumbnail?: string | null
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Update: {
+          body_ar?: string
+          body_en?: string
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          published?: boolean
+          route?: string | null
+          slug?: string | null
+          thumbnail?: string | null
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -665,6 +1123,60 @@ export type Database = {
           map_embed_url?: string | null
           waze?: string | null
           whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      timeline_entries: {
+        Row: {
+          created_at: string
+          date_label_ar: string
+          date_label_en: string
+          description_ar: string
+          description_en: string
+          era: string | null
+          id: string
+          image: string | null
+          published: boolean
+          slug: string
+          sort_order: number
+          title_ar: string
+          title_en: string
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          date_label_ar?: string
+          date_label_en?: string
+          description_ar?: string
+          description_en?: string
+          era?: string | null
+          id?: string
+          image?: string | null
+          published?: boolean
+          slug: string
+          sort_order?: number
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          date_label_ar?: string
+          date_label_en?: string
+          description_ar?: string
+          description_en?: string
+          era?: string | null
+          id?: string
+          image?: string | null
+          published?: boolean
+          slug?: string
+          sort_order?: number
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+          year?: number | null
         }
         Relationships: []
       }
@@ -732,6 +1244,8 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       app_role: "admin" | "editor"
