@@ -31,6 +31,23 @@ import {
   type ArchiveKind,
   type ContributionKind,
 } from "./content";
+import {
+  fetchCampaignBySlug,
+  fetchDonationCampaigns,
+  fetchPaymentMethods,
+  fetchPublicDonations,
+} from "./donations";
+import {
+  fetchChildren,
+  fetchFamilyMemberBySlug,
+  fetchFamilyMembers,
+  fetchMemorialBySlug,
+  fetchMemorials,
+  fetchTimeline,
+  fetchTimelineEntryBySlug,
+} from "./heritage";
+import { fetchNotificationLog } from "./notifications";
+import { searchSite, type SearchEntityType } from "./search";
 
 export const contentQueries = {
   hero: () => queryOptions({ queryKey: ["hero_content"], queryFn: fetchHeroContent }),
