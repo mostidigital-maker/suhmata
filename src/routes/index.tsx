@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { PageShell } from "@/components/site/PageShell";
 import { HeroSection } from "@/components/site/HeroSection";
 import { WelcomeSection } from "@/components/site/WelcomeSection";
