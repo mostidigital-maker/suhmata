@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { PageShell } from "@/components/site/PageShell";
 import { HeroSection } from "@/components/site/HeroSection";
 import { WelcomeSection } from "@/components/site/WelcomeSection";
@@ -50,17 +49,15 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <LanguageProvider>
-      <PageShell>
-        <HeroSection />
-        <WelcomeSection />
-        <HistorySection />
-        <NewsSection />
-        <EventsSection />
-        <GallerySection />
-        <StoriesSection />
-        <LocationSection />
-      </PageShell>
-    </LanguageProvider>
+    <PageShell>
+      <HeroSection />
+      <WelcomeSection />
+      <HistorySection />
+      <NewsSection />
+      <EventsSection />
+      <GallerySection />
+      <StoriesSection />
+      <LocationSection />
+    </PageShell>
   );
 }
