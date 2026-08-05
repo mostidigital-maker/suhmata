@@ -10,9 +10,15 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VideosRouteImport } from './routes/videos'
+import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as MemorialsRouteImport } from './routes/memorials'
 import { Route as MapRouteImport } from './routes/map'
+import { Route as GuestbookRouteImport } from './routes/guestbook'
+import { Route as FamilyTreeRouteImport } from './routes/family-tree'
+import { Route as DonateRouteImport } from './routes/donate'
 import { Route as ContributeRouteImport } from './routes/contribute'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -31,9 +37,19 @@ const VideosRoute = VideosRouteImport.update({
   path: '/videos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TimelineRoute = TimelineRouteImport.update({
+  id: '/timeline',
+  path: '/timeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MemorialsRoute = MemorialsRouteImport.update({
+  id: '/memorials',
+  path: '/memorials',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MapRoute = MapRouteImport.update({
@@ -41,9 +57,29 @@ const MapRoute = MapRouteImport.update({
   path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuestbookRoute = GuestbookRouteImport.update({
+  id: '/guestbook',
+  path: '/guestbook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilyTreeRoute = FamilyTreeRouteImport.update({
+  id: '/family-tree',
+  path: '/family-tree',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DonateRoute = DonateRouteImport.update({
+  id: '/donate',
+  path: '/donate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContributeRoute = ContributeRouteImport.update({
   id: '/contribute',
   path: '/contribute',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -109,9 +145,15 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/contribute': typeof ContributeRoute
+  '/donate': typeof DonateRoute
+  '/family-tree': typeof FamilyTreeRoute
+  '/guestbook': typeof GuestbookRoute
   '/map': typeof MapRoute
+  '/memorials': typeof MemorialsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/timeline': typeof TimelineRoute
   '/videos': typeof VideosRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/archive/$slug': typeof ArchiveSlugRoute
@@ -126,9 +168,15 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/contribute': typeof ContributeRoute
+  '/donate': typeof DonateRoute
+  '/family-tree': typeof FamilyTreeRoute
+  '/guestbook': typeof GuestbookRoute
   '/map': typeof MapRoute
+  '/memorials': typeof MemorialsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/timeline': typeof TimelineRoute
   '/videos': typeof VideosRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/archive/$slug': typeof ArchiveSlugRoute
@@ -145,9 +193,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/contribute': typeof ContributeRoute
+  '/donate': typeof DonateRoute
+  '/family-tree': typeof FamilyTreeRoute
+  '/guestbook': typeof GuestbookRoute
   '/map': typeof MapRoute
+  '/memorials': typeof MemorialsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/timeline': typeof TimelineRoute
   '/videos': typeof VideosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/archive/$slug': typeof ArchiveSlugRoute
@@ -164,9 +218,15 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/contact'
     | '/contribute'
+    | '/donate'
+    | '/family-tree'
+    | '/guestbook'
     | '/map'
+    | '/memorials'
     | '/sitemap.xml'
+    | '/timeline'
     | '/videos'
     | '/admin'
     | '/archive/$slug'
@@ -181,9 +241,15 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/contact'
     | '/contribute'
+    | '/donate'
+    | '/family-tree'
+    | '/guestbook'
     | '/map'
+    | '/memorials'
     | '/sitemap.xml'
+    | '/timeline'
     | '/videos'
     | '/admin'
     | '/archive/$slug'
@@ -199,9 +265,15 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/contact'
     | '/contribute'
+    | '/donate'
+    | '/family-tree'
+    | '/guestbook'
     | '/map'
+    | '/memorials'
     | '/sitemap.xml'
+    | '/timeline'
     | '/videos'
     | '/_authenticated/admin'
     | '/archive/$slug'
@@ -218,9 +290,15 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ContactRoute: typeof ContactRoute
   ContributeRoute: typeof ContributeRoute
+  DonateRoute: typeof DonateRoute
+  FamilyTreeRoute: typeof FamilyTreeRoute
+  GuestbookRoute: typeof GuestbookRoute
   MapRoute: typeof MapRoute
+  MemorialsRoute: typeof MemorialsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TimelineRoute: typeof TimelineRoute
   VideosRoute: typeof VideosRoute
   ArchiveSlugRoute: typeof ArchiveSlugRoute
   ArticlesSlugRoute: typeof ArticlesSlugRoute
@@ -241,11 +319,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VideosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/timeline': {
+      id: '/timeline'
+      path: '/timeline'
+      fullPath: '/timeline'
+      preLoaderRoute: typeof TimelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/memorials': {
+      id: '/memorials'
+      path: '/memorials'
+      fullPath: '/memorials'
+      preLoaderRoute: typeof MemorialsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/map': {
@@ -255,11 +347,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guestbook': {
+      id: '/guestbook'
+      path: '/guestbook'
+      fullPath: '/guestbook'
+      preLoaderRoute: typeof GuestbookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/family-tree': {
+      id: '/family-tree'
+      path: '/family-tree'
+      fullPath: '/family-tree'
+      preLoaderRoute: typeof FamilyTreeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donate': {
+      id: '/donate'
+      path: '/donate'
+      fullPath: '/donate'
+      preLoaderRoute: typeof DonateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contribute': {
       id: '/contribute'
       path: '/contribute'
       fullPath: '/contribute'
       preLoaderRoute: typeof ContributeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -364,9 +484,15 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ContactRoute: ContactRoute,
   ContributeRoute: ContributeRoute,
+  DonateRoute: DonateRoute,
+  FamilyTreeRoute: FamilyTreeRoute,
+  GuestbookRoute: GuestbookRoute,
   MapRoute: MapRoute,
+  MemorialsRoute: MemorialsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TimelineRoute: TimelineRoute,
   VideosRoute: VideosRoute,
   ArchiveSlugRoute: ArchiveSlugRoute,
   ArticlesSlugRoute: ArticlesSlugRoute,

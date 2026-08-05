@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { contentQueries } from "@/services/queries";
@@ -87,9 +86,9 @@ export function SiteFooter() {
           <p>
             © {year} {t(f.rights)}
           </p>
-          <Link to="/auth" className="transition-colors hover:text-foreground">
+          <a href="/auth" className="transition-colors hover:text-foreground">
             {t(f.adminLink)}
-          </Link>
+          </a>
         </div>
       </div>
     </footer>

@@ -12,6 +12,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider } from "../i18n/LanguageProvider";
+import { SiteHeader } from "../components/site/SiteHeader";
+import { SiteFooter } from "../components/site/SiteFooter";
 
 function NotFoundComponent() {
   return (
@@ -123,8 +125,16 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
+        <a
+          href="#main"
+          className="btn-base btn-gold sr-only focus:not-sr-only focus:absolute focus:top-3 focus:start-3 focus:z-[100]"
+        >
+          Skip to content
+        </a>
+        <SiteHeader />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
+        <SiteFooter />
       </LanguageProvider>
     </QueryClientProvider>
   );

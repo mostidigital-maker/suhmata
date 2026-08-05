@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
@@ -10,8 +10,10 @@ import crest from "@/assets/village-crest.png";
 
 export function SiteHeader() {
   const { lang, t } = useLanguage();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const solid = location.pathname !== "/" || scrolled || open;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -20,19 +22,19 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => setOpen(false), [lang]);
+  useEffect(() => setOpen(false), [lang, location.pathname]);
 
   return (
     <header
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,box-shadow] duration-700",
-        scrolled || open
+        solid
           ? "border-b border-accent/25 bg-background/92 shadow-[0_1px_0_0_color-mix(in_oklab,var(--gold)_25%,transparent)] backdrop-blur-md"
           : "border-b border-transparent",
       )}
     >
       <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-3 sm:px-8 lg:flex lg:justify-between">
-        <a href="#top" className="flex min-w-0 items-center gap-3">
+        <Link to="/" hash="top" className="flex min-w-0 items-center gap-3">
           <img
             src={crest}
             alt=""
@@ -40,14 +42,14 @@ export function SiteHeader() {
             height={816}
             className={cn(
               "h-10 w-10 shrink-0 transition-opacity duration-500 sm:h-11 sm:w-11",
-              scrolled || open ? "opacity-100" : "opacity-95",
+              solid ? "opacity-100" : "opacity-95",
             )}
           />
           <span className="min-w-0">
             <span
               className={cn(
                 "block truncate font-display text-base leading-tight font-semibold sm:text-lg",
-                scrolled || open ? "text-foreground" : "text-parchment",
+                solid ? "text-foreground" : "text-parchment",
               )}
             >
               {t(site.villageName)}
@@ -55,13 +57,13 @@ export function SiteHeader() {
             <span
               className={cn(
                 "block truncate text-[0.65rem] tracking-[0.22em] uppercase",
-                scrolled || open ? "text-muted-foreground" : "text-parchment/70",
+                solid ? "text-muted-foreground" : "text-parchment/70",
               )}
             >
               {t(site.associationName)}
             </span>
           </span>
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-6 lg:flex">
           {mainNav.map((item) => (
@@ -71,7 +73,7 @@ export function SiteHeader() {
               hash={item.hash}
               className={cn(
                 "link-quill text-sm transition-colors duration-300 hover:text-accent",
-                scrolled ? "text-foreground/80" : "text-parchment/85",
+                solid ? "text-foreground/80" : "text-parchment/85",
               )}
             >
               {item.label[lang]}
@@ -80,7 +82,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2 justify-self-end">
-          <LanguageSwitcher variant={scrolled || open ? "default" : "onDark"} />
+          <LanguageSwitcher variant={solid ? "default" : "onDark"} />
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
@@ -88,7 +90,7 @@ export function SiteHeader() {
             aria-label={t(site.menu)}
             className={cn(
               "grid h-11 w-11 shrink-0 place-items-center rounded-full border transition-colors lg:hidden",
-              scrolled || open
+              solid
                 ? "border-border text-foreground"
                 : "border-parchment/40 text-parchment",
             )}
