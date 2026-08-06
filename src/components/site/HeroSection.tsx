@@ -3,7 +3,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { site } from "@/i18n/translations";
 import { useLocalizedField } from "@/hooks/useLocalizedField";
 import { contentQueries } from "@/services/queries";
-import { resolveMediaUrl } from "@/lib/media";
+import { useMediaSrc } from "@/hooks/useMediaSrc";
 import heroImage from "@/assets/hero-village.jpg";
 import crest from "@/assets/village-crest.png";
 
@@ -12,7 +12,7 @@ export function HeroSection() {
   const field = useLocalizedField();
   const { data: hero } = useQuery(contentQueries.hero());
 
-  const background = resolveMediaUrl(hero?.background_image, heroImage) ?? heroImage;
+  const background = useMediaSrc(hero?.background_image, heroImage) ?? heroImage;
   const title = field(hero, "title") || t(site.villageName);
   const subtitle = field(hero, "subtitle") || t(site.heroIntro);
 

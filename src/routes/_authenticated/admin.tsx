@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Toaster, toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchMyRoles, signOut } from "@/services/auth";
+import { ContentManager } from "@/components/admin/ContentManager";
 
 const title = "لوحة الإدارة | Archive dashboard";
 const description = "لوحة مراجعة مساهمات الزوار وإدارة محتوى أرشيف القرية.";
@@ -26,7 +27,10 @@ function AdminPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: roles = [] } = useQuery({ queryKey: ["my-roles"], queryFn: fetchMyRoles });
+  const { data: roles = [], isLoading: rolesLoading, error: rolesError } = useQuery({
+    queryKey: ["my-roles"],
+    queryFn: fetchMyRoles,
+  });
   const isStaff = roles.includes("admin") || roles.includes("editor");
 
   const { data: stories = [] } = useQuery({
@@ -150,12 +154,21 @@ function AdminPage() {
           </div>
         </header>
 
-        {!isStaff ? (
+        {rolesLoading ? (
+          <p className="mt-10 rounded-sm border border-border bg-card p-6 text-muted-foreground">
+            Checking permissions…
+          </p>
+        ) : rolesError ? (
+          <p className="mt-10 rounded-sm border border-destructive bg-card p-6 text-destructive">
+            Could not load permissions: {(rolesError as Error).message}
+          </p>
+        ) : !isStaff ? (
           <p className="mt-10 rounded-sm border border-border bg-card p-6 leading-loose text-muted-foreground">
             حسابك ليس ضمن فريق التحرير بعد. يحتاج مدير الأرشيف إلى منحك دور admin أو editor.
           </p>
         ) : (
           <>
+            <ContentManager />
             <section className="mt-12">
               <h2 className="text-sm tracking-[0.25em] text-olive uppercase">
                 Guestbook · {stories.length} ({pendingStories} pending)
