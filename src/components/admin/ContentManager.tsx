@@ -45,8 +45,7 @@ async function uploadImage(file: File, folder: string) {
     upsert: false,
   });
   if (error) throw new Error(error.message);
-  const { data } = supabase.storage.from("media").getPublicUrl(path);
-  return data.publicUrl;
+  return path;
 }
 
 export function ContentManager() {
