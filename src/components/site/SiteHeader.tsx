@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { site } from "@/i18n/translations";
 import { mainNav } from "@/i18n/pages";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import crest from "@/assets/village-crest.png";
+import { contentQueries } from "@/services/queries";
 
 export function SiteHeader() {
   const { lang, t } = useLanguage();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { data: hero } = useQuery(contentQueries.hero());
   const solid = location.pathname !== "/" || scrolled || open;
+  const villageName = lang === "ar" ? hero?.title_ar : hero?.title_en;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -52,7 +56,7 @@ export function SiteHeader() {
                 solid ? "text-foreground" : "text-parchment",
               )}
             >
-              {t(site.villageName)}
+              {villageName || t(site.villageName)}
             </span>
             <span
               className={cn(
