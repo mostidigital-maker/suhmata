@@ -2,7 +2,7 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Toaster, toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchMyRoles, signOut } from "@/services/auth";
+import { signOut } from "@/services/auth";
 import { ContentManager } from "@/components/admin/ContentManager";
 
 const title = "لوحة الإدارة | Archive dashboard";
@@ -26,16 +26,13 @@ export const Route = createFileRoute("/_authenticated/admin")({
 function AdminPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  const { data: roles = [], isLoading: rolesLoading, error: rolesError } = useQuery({
-    queryKey: ["my-roles"],
-    queryFn: fetchMyRoles,
-  });
-  const isStaff = roles.includes("admin") || roles.includes("editor");
+  // The "/_authenticated" layout route already verified this user holds an
+  // admin/editor role before rendering anything under it — no need to
+  // re-check or gate the page here, just read the roles for display.
+  const { roles } = Route.useRouteContext();
 
   const { data: stories = [] } = useQuery({
     queryKey: ["admin", "guestbook", "all"],
-    enabled: isStaff,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("guestbook")
@@ -48,7 +45,6 @@ function AdminPage() {
 
   const { data: videos = [] } = useQuery({
     queryKey: ["admin", "videos", "all"],
-    enabled: isStaff,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("visitor_videos")
@@ -154,129 +150,112 @@ function AdminPage() {
           </div>
         </header>
 
-        {rolesLoading ? (
-          <p className="mt-10 rounded-sm border border-border bg-card p-6 text-muted-foreground">
-            Checking permissions…
-          </p>
-        ) : rolesError ? (
-          <p className="mt-10 rounded-sm border border-destructive bg-card p-6 text-destructive">
-            Could not load permissions: {(rolesError as Error).message}
-          </p>
-        ) : !isStaff ? (
-          <p className="mt-10 rounded-sm border border-border bg-card p-6 leading-loose text-muted-foreground">
-            حسابك ليس ضمن فريق التحرير بعد. يحتاج مدير الأرشيف إلى منحك دور admin أو editor.
-          </p>
-        ) : (
-          <>
-            <ContentManager />
-            <section className="mt-12">
-              <h2 className="text-sm tracking-[0.25em] text-olive uppercase">
-                Guestbook · {stories.length} ({pendingStories} pending)
-              </h2>
-              <div className="mt-4 grid gap-4">
-                {stories.map((entry) => (
-                  <article key={entry.id} className="rounded-sm border border-border bg-card p-5">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <p className="font-display text-lg">{entry.name}</p>
-                      <span className="rounded-full border border-border px-2.5 py-0.5 text-[0.65rem] tracking-widest text-muted-foreground uppercase">
-                        {!entry.approved ? "pending" : entry.hidden ? "hidden" : "published"}
-                      </span>
-                    </div>
-                    <p className="mt-2 leading-loose text-muted-foreground">{entry.message}</p>
-                    <p className="mt-2 text-xs break-all text-muted-foreground">
-                      {[entry.email, entry.facebook, entry.instagram].filter(Boolean).join(" · ")}
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      {!entry.approved ? (
-                        <button
-                          className={btn}
-                          onClick={() => moderateStory.mutate({ id: entry.id, action: "approve" })}
-                        >
-                          نشر · Approve
-                        </button>
-                      ) : (
-                        <button
-                          className={btn}
-                          onClick={() =>
-                            moderateStory.mutate({
-                              id: entry.id,
-                              action: entry.hidden ? "show" : "hide",
-                            })
-                          }
-                        >
-                          {entry.hidden ? "إظهار · Show" : "إخفاء · Hide"}
-                        </button>
-                      )}
-                      <button
-                        className={btn}
-                        onClick={() => moderateStory.mutate({ id: entry.id, action: "delete" })}
-                      >
-                        حذف · Delete
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-
-            <section className="mt-12">
-              <h2 className="text-sm tracking-[0.25em] text-olive uppercase">
-                Visitor videos · {videos.length} ({pendingVideos} pending)
-              </h2>
-              <div className="mt-4 grid gap-4">
-                {videos.map((video) => (
-                  <article key={video.id} className="rounded-sm border border-border bg-card p-5">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <p className="font-display text-lg">{video.visitor_name}</p>
-                      <span className="rounded-full border border-border px-2.5 py-0.5 text-[0.65rem] tracking-widest text-muted-foreground uppercase">
-                        {video.status}
-                      </span>
-                    </div>
-                    <a
-                      href={video.video_url}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="mt-2 block text-sm break-all text-olive hover:underline"
+        <ContentManager />
+        <section className="mt-12">
+          <h2 className="text-sm tracking-[0.25em] text-olive uppercase">
+            Guestbook · {stories.length} ({pendingStories} pending)
+          </h2>
+          <div className="mt-4 grid gap-4">
+            {stories.map((entry) => (
+              <article key={entry.id} className="rounded-sm border border-border bg-card p-5">
+                <div className="flex flex-wrap items-center gap-3">
+                  <p className="font-display text-lg">{entry.name}</p>
+                  <span className="rounded-full border border-border px-2.5 py-0.5 text-[0.65rem] tracking-widest text-muted-foreground uppercase">
+                    {!entry.approved ? "pending" : entry.hidden ? "hidden" : "published"}
+                  </span>
+                </div>
+                <p className="mt-2 leading-loose text-muted-foreground">{entry.message}</p>
+                <p className="mt-2 text-xs break-all text-muted-foreground">
+                  {[entry.email, entry.facebook, entry.instagram].filter(Boolean).join(" · ")}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {!entry.approved ? (
+                    <button
+                      className={btn}
+                      onClick={() => moderateStory.mutate({ id: entry.id, action: "approve" })}
                     >
-                      {video.video_url}
-                    </a>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      {video.status !== "approved" ? (
-                        <button
-                          className={btn}
-                          onClick={() => moderateVideo.mutate({ id: video.id, status: "approved" })}
-                        >
-                          قبول · Approve
-                        </button>
-                      ) : (
-                        <button
-                          className={btn}
-                          onClick={() => moderateVideo.mutate({ id: video.id, status: "pending" })}
-                        >
-                          إخفاء · Hide
-                        </button>
-                      )}
-                      <button
-                        className={btn}
-                        onClick={() => moderateVideo.mutate({ id: video.id, status: "rejected" })}
-                      >
-                        رفض · Reject
-                      </button>
-                      <button
-                        className={btn}
-                        onClick={() => moderateVideo.mutate({ id: video.id, remove: true })}
-                      >
-                        حذف · Delete
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-          </>
-        )}
+                      نشر · Approve
+                    </button>
+                  ) : (
+                    <button
+                      className={btn}
+                      onClick={() =>
+                        moderateStory.mutate({
+                          id: entry.id,
+                          action: entry.hidden ? "show" : "hide",
+                        })
+                      }
+                    >
+                      {entry.hidden ? "إظهار · Show" : "إخفاء · Hide"}
+                    </button>
+                  )}
+                  <button
+                    className={btn}
+                    onClick={() => moderateStory.mutate({ id: entry.id, action: "delete" })}
+                  >
+                    حذف · Delete
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-12">
+          <h2 className="text-sm tracking-[0.25em] text-olive uppercase">
+            Visitor videos · {videos.length} ({pendingVideos} pending)
+          </h2>
+          <div className="mt-4 grid gap-4">
+            {videos.map((video) => (
+              <article key={video.id} className="rounded-sm border border-border bg-card p-5">
+                <div className="flex flex-wrap items-center gap-3">
+                  <p className="font-display text-lg">{video.visitor_name}</p>
+                  <span className="rounded-full border border-border px-2.5 py-0.5 text-[0.65rem] tracking-widest text-muted-foreground uppercase">
+                    {video.status}
+                  </span>
+                </div>
+                <a
+                  href={video.video_url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="mt-2 block text-sm break-all text-olive hover:underline"
+                >
+                  {video.video_url}
+                </a>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {video.status !== "approved" ? (
+                    <button
+                      className={btn}
+                      onClick={() => moderateVideo.mutate({ id: video.id, status: "approved" })}
+                    >
+                      قبول · Approve
+                    </button>
+                  ) : (
+                    <button
+                      className={btn}
+                      onClick={() => moderateVideo.mutate({ id: video.id, status: "pending" })}
+                    >
+                      إخفاء · Hide
+                    </button>
+                  )}
+                  <button
+                    className={btn}
+                    onClick={() => moderateVideo.mutate({ id: video.id, status: "rejected" })}
+                  >
+                    رفض · Reject
+                  </button>
+                  <button
+                    className={btn}
+                    onClick={() => moderateVideo.mutate({ id: video.id, remove: true })}
+                  >
+                    حذف · Delete
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
       </div>
     </main>
   );
 }
-

@@ -3,7 +3,6 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Toaster } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { ensureProfile, signInWithPassword, signUpWithPassword } from "@/services/auth";
 
 const title = "دخول الإدارة | Association access";
@@ -59,16 +58,13 @@ function AuthPage() {
   };
 
   const onGoogle = async () => {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/admin` },
     });
-    if (result.error) {
-      toast.error(result.error.message ?? "Google sign-in failed");
-      return;
-    }
-    if (result.redirected) return;
-    await ensureProfile();
-    navigate({ to: "/admin", replace: true });
+    if (error) toast.error(error.message ?? "Google sign-in failed");
+    // On success Supabase redirects the browser to Google, then back to
+    // redirectTo above — there's nothing further to do here.
   };
 
   const inputClass =
