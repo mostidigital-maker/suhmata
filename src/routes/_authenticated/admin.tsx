@@ -4,6 +4,7 @@ import { Toaster, toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/services/auth";
 import { ContentManager } from "@/components/admin/ContentManager";
+import { UserRoles } from "@/components/admin/UserRoles";
 
 const title = "لوحة الإدارة | Archive dashboard";
 const description = "لوحة مراجعة مساهمات الزوار وإدارة محتوى أرشيف القرية.";
@@ -30,6 +31,7 @@ function AdminPage() {
   // admin/editor role before rendering anything under it — no need to
   // re-check or gate the page here, just read the roles for display.
   const { roles } = Route.useRouteContext();
+  const isAdmin = roles.includes("admin");
 
   const { data: stories = [] } = useQuery({
     queryKey: ["admin", "guestbook", "all"],
@@ -55,10 +57,23 @@ function AdminPage() {
     },
   });
 
+  const { data: contributions = [] } = useQuery({
+    queryKey: ["admin", "contributions", "all"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contributions")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  });
+
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["admin"] });
     queryClient.invalidateQueries({ queryKey: ["guestbook"] });
     queryClient.invalidateQueries({ queryKey: ["visitor_videos"] });
+    queryClient.invalidateQueries({ queryKey: ["contributions"] });
   };
 
   const moderateStory = useMutation({
@@ -116,6 +131,32 @@ function AdminPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const moderateContribution = useMutation({
+    mutationFn: async ({
+      id,
+      status,
+      remove,
+    }: {
+      id: string;
+      status?: "approved" | "rejected" | "pending";
+      remove?: boolean;
+    }) => {
+      const query = remove
+        ? supabase.from("contributions").delete().eq("id", id)
+        : supabase
+            .from("contributions")
+            .update({ status: status ?? "pending" })
+            .eq("id", id);
+      const { error } = await query;
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      toast.success("Updated");
+      invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const handleSignOut = async () => {
     await queryClient.cancelQueries();
     queryClient.clear();
@@ -128,6 +169,7 @@ function AdminPage() {
 
   const pendingStories = stories.filter((entry) => !entry.approved).length;
   const pendingVideos = videos.filter((video) => video.status === "pending").length;
+  const pendingContributions = contributions.filter((entry) => entry.status === "pending").length;
 
   return (
     <main className="paper-grain min-h-screen bg-secondary px-5 py-14">
@@ -150,7 +192,12 @@ function AdminPage() {
           </div>
         </header>
 
-        <ContentManager />
+        {isAdmin ? (
+          <>
+            <ContentManager />
+            <UserRoles />
+          </>
+        ) : null}
         <section className="mt-12">
           <h2 className="text-sm tracking-[0.25em] text-olive uppercase">
             Guestbook · {stories.length} ({pendingStories} pending)
@@ -253,6 +300,83 @@ function AdminPage() {
                 </div>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section className="mt-12">
+          <h2 className="text-sm tracking-[0.25em] text-olive uppercase">
+            Contributions · {contributions.length} ({pendingContributions} pending)
+          </h2>
+          <div className="mt-4 grid gap-4">
+            {contributions.map((entry) => (
+              <article key={entry.id} className="rounded-sm border border-border bg-card p-5">
+                <div className="flex flex-wrap items-center gap-3">
+                  <p className="font-display text-lg">
+                    {entry.contributor_name} · {entry.kind}
+                  </p>
+                  <span className="rounded-full border border-border px-2.5 py-0.5 text-[0.65rem] tracking-widest text-muted-foreground uppercase">
+                    {entry.status}
+                  </span>
+                </div>
+                {entry.title ? <p className="mt-2 font-medium">{entry.title}</p> : null}
+                {entry.body ? (
+                  <p className="mt-2 leading-loose text-muted-foreground">{entry.body}</p>
+                ) : null}
+                {entry.media_url ? (
+                  <a
+                    href={entry.media_url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="mt-2 block text-sm break-all text-olive hover:underline"
+                  >
+                    {entry.media_url}
+                  </a>
+                ) : null}
+                <p className="mt-2 text-xs break-all text-muted-foreground">
+                  {[entry.email, entry.social_link].filter(Boolean).join(" · ")}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {entry.status !== "approved" ? (
+                    <button
+                      className={btn}
+                      onClick={() =>
+                        moderateContribution.mutate({ id: entry.id, status: "approved" })
+                      }
+                    >
+                      قبول · Approve
+                    </button>
+                  ) : (
+                    <button
+                      className={btn}
+                      onClick={() =>
+                        moderateContribution.mutate({ id: entry.id, status: "pending" })
+                      }
+                    >
+                      إخفاء · Hide
+                    </button>
+                  )}
+                  <button
+                    className={btn}
+                    onClick={() =>
+                      moderateContribution.mutate({ id: entry.id, status: "rejected" })
+                    }
+                  >
+                    رفض · Reject
+                  </button>
+                  <button
+                    className={btn}
+                    onClick={() => moderateContribution.mutate({ id: entry.id, remove: true })}
+                  >
+                    حذف · Delete
+                  </button>
+                </div>
+              </article>
+            ))}
+            {!contributions.length ? (
+              <p className="rounded-sm border border-border bg-card p-5 text-muted-foreground">
+                No contributions yet.
+              </p>
+            ) : null}
           </div>
         </section>
       </div>

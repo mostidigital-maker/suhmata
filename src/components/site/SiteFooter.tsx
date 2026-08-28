@@ -7,8 +7,12 @@ import crest from "@/assets/village-crest.png";
 export function SiteFooter() {
   const { lang, t } = useLanguage();
   const f = sections.footer;
-  const year = new Date().getFullYear();
   const { data: settings } = useQuery(contentQueries.settings());
+  const { data: hero } = useQuery(contentQueries.hero());
+  const villageName = lang === "ar" ? hero?.title_ar : hero?.title_en;
+  const rights = lang === "ar" ? settings?.rights_ar : settings?.rights_en;
+  const address = lang === "ar" ? settings?.address_ar : settings?.address_en;
+  const year = new Date().getFullYear();
   const socials = [
     { label: "Facebook", href: settings?.facebook },
     { label: "Instagram", href: settings?.instagram },
@@ -17,17 +21,23 @@ export function SiteFooter() {
     { label: "Waze", href: settings?.waze },
   ].filter((item) => Boolean(item.href));
 
-
   return (
     <footer className="paper-grain border-t border-border bg-secondary px-gutter py-20">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="flex min-w-0 items-center gap-3">
-              <img src={crest} alt="" loading="lazy" width={816} height={816} className="h-11 w-11 shrink-0" />
+              <img
+                src={crest}
+                alt=""
+                loading="lazy"
+                width={816}
+                height={816}
+                className="h-11 w-11 shrink-0"
+              />
               <span className="min-w-0">
                 <span className="block truncate font-display text-lg font-semibold">
-                  {t(site.villageName)}
+                  {villageName || t(site.villageName)}
                 </span>
                 <span className="block truncate text-[0.65rem] tracking-[0.2em] text-muted-foreground uppercase">
                   {t(site.villageTagline)}
@@ -57,6 +67,12 @@ export function SiteFooter() {
             <h3 className="text-sm tracking-[0.25em] text-olive uppercase">{t(f.contactTitle)}</h3>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
               <li>{settings?.contact_email ?? t(f.email)}</li>
+              {settings?.phone ? (
+                <li dir="ltr" className="text-end">
+                  {settings.phone}
+                </li>
+              ) : null}
+              {address ? <li>{address}</li> : null}
               {socials.map((item) => (
                 <li key={item.label}>
                   <a
@@ -80,11 +96,13 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="ornament mt-14" aria-hidden><span className="h-1.5 w-1.5 rotate-45 bg-current" /></div>
+        <div className="ornament mt-14" aria-hidden>
+          <span className="h-1.5 w-1.5 rotate-45 bg-current" />
+        </div>
 
         <div className="mt-6 flex flex-col items-center justify-between gap-3 text-xs text-muted-foreground sm:flex-row">
           <p>
-            © {year} {t(f.rights)}
+            © {year} {rights || t(f.rights)}
           </p>
           <a href="/auth" className="transition-colors hover:text-foreground">
             {t(f.adminLink)}

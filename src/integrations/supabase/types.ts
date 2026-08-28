@@ -1089,6 +1089,8 @@ export type Database = {
       }
       settings: {
         Row: {
+          address_ar: string | null
+          address_en: string | null
           contact_email: string | null
           created_at: string
           facebook: string | null
@@ -1097,10 +1099,15 @@ export type Database = {
           instagram: string | null
           logo: string | null
           map_embed_url: string | null
+          phone: string | null
+          rights_ar: string | null
+          rights_en: string | null
           waze: string | null
           whatsapp: string | null
         }
         Insert: {
+          address_ar?: string | null
+          address_en?: string | null
           contact_email?: string | null
           created_at?: string
           facebook?: string | null
@@ -1109,10 +1116,15 @@ export type Database = {
           instagram?: string | null
           logo?: string | null
           map_embed_url?: string | null
+          phone?: string | null
+          rights_ar?: string | null
+          rights_en?: string | null
           waze?: string | null
           whatsapp?: string | null
         }
         Update: {
+          address_ar?: string | null
+          address_en?: string | null
           contact_email?: string | null
           created_at?: string
           facebook?: string | null
@@ -1121,6 +1133,9 @@ export type Database = {
           instagram?: string | null
           logo?: string | null
           map_embed_url?: string | null
+          phone?: string | null
+          rights_ar?: string | null
+          rights_en?: string | null
           waze?: string | null
           whatsapp?: string | null
         }
@@ -1236,6 +1251,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_clear_user_role: { Args: { _target_user_id: string }; Returns: undefined }
+      admin_list_users: {
+        Args: never
+        Returns: {
+          id: string
+          email: string
+          full_name: string | null
+          created_at: string
+          roles: Database["public"]["Enums"]["app_role"][]
+        }[]
+      }
+      admin_set_user_role: {
+        Args: {
+          _target_user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
