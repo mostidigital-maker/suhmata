@@ -21,7 +21,8 @@ export const Route = createFileRoute("/_authenticated")({
     } catch {
       throw redirect({ to: "/" });
     }
-    const isStaff = roles.includes("admin") || roles.includes("editor");
+    const isStaff =
+      roles.includes("super_admin") || roles.includes("admin") || roles.includes("editor");
     if (!isStaff) throw redirect({ to: "/" });
 
     return { user: data.user, roles };

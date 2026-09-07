@@ -31,7 +31,8 @@ function AdminPage() {
   // admin/editor role before rendering anything under it — no need to
   // re-check or gate the page here, just read the roles for display.
   const { roles } = Route.useRouteContext();
-  const isAdmin = roles.includes("admin");
+  const isSuperAdmin = roles.includes("super_admin");
+  const isAdminOrAbove = isSuperAdmin || roles.includes("admin");
 
   const { data: stories = [] } = useQuery({
     queryKey: ["admin", "guestbook", "all"],
@@ -192,11 +193,9 @@ function AdminPage() {
           </div>
         </header>
 
-        {isAdmin ? (
-          <>
-            <ContentManager />
-            <UserRoles />
-          </>
+        {isSuperAdmin ? <UserRoles /> : null}
+        {isAdminOrAbove ? (
+          <ContentManager canEditIdentity={isSuperAdmin} canEditContent={isAdminOrAbove} />
         ) : null}
         <section className="mt-12">
           <h2 className="text-sm tracking-[0.25em] text-olive uppercase">

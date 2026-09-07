@@ -1,10 +1,7 @@
 -- ============================================================
--- Future expansion schema
--- Every table: create -> grant -> enable RLS -> policies
+-- EXPANSION TABLES — admin (and super_admin) managed, same
+-- pattern as the content tables above.
 -- ============================================================
-
--- shared updated_at helper
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -39,8 +36,8 @@ CREATE POLICY "Public read active payment methods" ON public.payment_methods
   FOR SELECT TO anon, authenticated USING (active = true);
 CREATE POLICY "Staff read all payment methods" ON public.payment_methods
   FOR SELECT TO authenticated USING (public.is_staff(auth.uid()));
-CREATE POLICY "Staff manage payment methods" ON public.payment_methods
-  FOR ALL TO authenticated USING (public.is_staff(auth.uid())) WITH CHECK (public.is_staff(auth.uid()));
+CREATE POLICY "Admins manage payment methods" ON public.payment_methods
+  FOR ALL TO authenticated USING (public.is_admin_or_above(auth.uid())) WITH CHECK (public.is_admin_or_above(auth.uid()));
 CREATE TRIGGER trg_payment_methods_updated BEFORE UPDATE ON public.payment_methods
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
@@ -71,8 +68,8 @@ CREATE POLICY "Public read active campaigns" ON public.donation_campaigns
   FOR SELECT TO anon, authenticated USING (active = true);
 CREATE POLICY "Staff read all campaigns" ON public.donation_campaigns
   FOR SELECT TO authenticated USING (public.is_staff(auth.uid()));
-CREATE POLICY "Staff manage campaigns" ON public.donation_campaigns
-  FOR ALL TO authenticated USING (public.is_staff(auth.uid())) WITH CHECK (public.is_staff(auth.uid()));
+CREATE POLICY "Admins manage campaigns" ON public.donation_campaigns
+  FOR ALL TO authenticated USING (public.is_admin_or_above(auth.uid())) WITH CHECK (public.is_admin_or_above(auth.uid()));
 CREATE TRIGGER trg_campaigns_updated BEFORE UPDATE ON public.donation_campaigns
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
@@ -102,8 +99,8 @@ CREATE POLICY "Public read completed public donations" ON public.donations
   FOR SELECT TO anon, authenticated USING (status = 'completed' AND is_public = true);
 CREATE POLICY "Staff read all donations" ON public.donations
   FOR SELECT TO authenticated USING (public.is_staff(auth.uid()));
-CREATE POLICY "Staff manage donations" ON public.donations
-  FOR ALL TO authenticated USING (public.is_staff(auth.uid())) WITH CHECK (public.is_staff(auth.uid()));
+CREATE POLICY "Admins manage donations" ON public.donations
+  FOR ALL TO authenticated USING (public.is_admin_or_above(auth.uid())) WITH CHECK (public.is_admin_or_above(auth.uid()));
 CREATE TRIGGER trg_donations_updated BEFORE UPDATE ON public.donations
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
@@ -139,8 +136,8 @@ CREATE POLICY "Public read published family members" ON public.family_members
   FOR SELECT TO anon, authenticated USING (published = true);
 CREATE POLICY "Staff read all family members" ON public.family_members
   FOR SELECT TO authenticated USING (public.is_staff(auth.uid()));
-CREATE POLICY "Staff manage family members" ON public.family_members
-  FOR ALL TO authenticated USING (public.is_staff(auth.uid())) WITH CHECK (public.is_staff(auth.uid()));
+CREATE POLICY "Admins manage family members" ON public.family_members
+  FOR ALL TO authenticated USING (public.is_admin_or_above(auth.uid())) WITH CHECK (public.is_admin_or_above(auth.uid()));
 CREATE TRIGGER trg_family_members_updated BEFORE UPDATE ON public.family_members
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
@@ -171,8 +168,8 @@ CREATE POLICY "Public read published timeline" ON public.timeline_entries
   FOR SELECT TO anon, authenticated USING (published = true);
 CREATE POLICY "Staff read all timeline" ON public.timeline_entries
   FOR SELECT TO authenticated USING (public.is_staff(auth.uid()));
-CREATE POLICY "Staff manage timeline" ON public.timeline_entries
-  FOR ALL TO authenticated USING (public.is_staff(auth.uid())) WITH CHECK (public.is_staff(auth.uid()));
+CREATE POLICY "Admins manage timeline" ON public.timeline_entries
+  FOR ALL TO authenticated USING (public.is_admin_or_above(auth.uid())) WITH CHECK (public.is_admin_or_above(auth.uid()));
 CREATE TRIGGER trg_timeline_updated BEFORE UPDATE ON public.timeline_entries
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
@@ -201,8 +198,8 @@ CREATE POLICY "Public read published memorials" ON public.memorials
   FOR SELECT TO anon, authenticated USING (published = true);
 CREATE POLICY "Staff read all memorials" ON public.memorials
   FOR SELECT TO authenticated USING (public.is_staff(auth.uid()));
-CREATE POLICY "Staff manage memorials" ON public.memorials
-  FOR ALL TO authenticated USING (public.is_staff(auth.uid())) WITH CHECK (public.is_staff(auth.uid()));
+CREATE POLICY "Admins manage memorials" ON public.memorials
+  FOR ALL TO authenticated USING (public.is_admin_or_above(auth.uid())) WITH CHECK (public.is_admin_or_above(auth.uid()));
 CREATE TRIGGER trg_memorials_updated BEFORE UPDATE ON public.memorials
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
@@ -229,8 +226,8 @@ CREATE POLICY "Anyone can subscribe" ON public.notification_subscribers
   FOR INSERT TO anon, authenticated WITH CHECK (confirmed = false);
 CREATE POLICY "Staff read subscribers" ON public.notification_subscribers
   FOR SELECT TO authenticated USING (public.is_staff(auth.uid()));
-CREATE POLICY "Staff manage subscribers" ON public.notification_subscribers
-  FOR ALL TO authenticated USING (public.is_staff(auth.uid())) WITH CHECK (public.is_staff(auth.uid()));
+CREATE POLICY "Admins manage subscribers" ON public.notification_subscribers
+  FOR ALL TO authenticated USING (public.is_admin_or_above(auth.uid())) WITH CHECK (public.is_admin_or_above(auth.uid()));
 CREATE TRIGGER trg_subscribers_updated BEFORE UPDATE ON public.notification_subscribers
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
@@ -253,8 +250,8 @@ GRANT ALL ON public.notification_log TO service_role;
 ALTER TABLE public.notification_log ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Staff read notification log" ON public.notification_log
   FOR SELECT TO authenticated USING (public.is_staff(auth.uid()));
-CREATE POLICY "Staff manage notification log" ON public.notification_log
-  FOR ALL TO authenticated USING (public.is_staff(auth.uid())) WITH CHECK (public.is_staff(auth.uid()));
+CREATE POLICY "Admins manage notification log" ON public.notification_log
+  FOR ALL TO authenticated USING (public.is_admin_or_above(auth.uid())) WITH CHECK (public.is_admin_or_above(auth.uid()));
 
 -- ---------------------------------------------- unified search index
 CREATE TABLE public.search_index (
@@ -281,7 +278,7 @@ GRANT ALL ON public.search_index TO service_role;
 ALTER TABLE public.search_index ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read published search index" ON public.search_index
   FOR SELECT TO anon, authenticated USING (published = true);
-CREATE POLICY "Staff manage search index" ON public.search_index
-  FOR ALL TO authenticated USING (public.is_staff(auth.uid())) WITH CHECK (public.is_staff(auth.uid()));
+CREATE POLICY "Admins manage search index" ON public.search_index
+  FOR ALL TO authenticated USING (public.is_admin_or_above(auth.uid())) WITH CHECK (public.is_admin_or_above(auth.uid()));
 CREATE TRIGGER trg_search_index_updated BEFORE UPDATE ON public.search_index
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();

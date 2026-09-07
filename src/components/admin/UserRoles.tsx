@@ -57,7 +57,8 @@ export function UserRoles() {
             المستخدمون والصلاحيات · Users &amp; roles
           </h2>
           <p className="text-sm text-muted-foreground">
-            Approve new sign-ups and set each account to admin, editor, or guest (no staff access).
+            Approve new sign-ups and set each account to super admin, admin, editor, or guest (no
+            staff access).
           </p>
         </div>
       </div>
@@ -70,11 +71,13 @@ export function UserRoles() {
 
       <div className="mt-6 grid gap-3">
         {users.map((user) => {
-          const current: Selection = user.roles?.includes("admin")
-            ? "admin"
-            : user.roles?.includes("editor")
-              ? "editor"
-              : "guest";
+          const current: Selection = user.roles?.includes("super_admin")
+            ? "super_admin"
+            : user.roles?.includes("admin")
+              ? "admin"
+              : user.roles?.includes("editor")
+                ? "editor"
+                : "guest";
           return (
             <article
               key={user.id}
@@ -97,6 +100,7 @@ export function UserRoles() {
                 <option value="guest">Guest (no access)</option>
                 <option value="editor">Editor</option>
                 <option value="admin">Admin</option>
+                <option value="super_admin">Super Admin</option>
               </select>
             </article>
           );
