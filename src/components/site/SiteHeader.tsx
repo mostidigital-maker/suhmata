@@ -16,6 +16,7 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { data: hero } = useQuery(contentQueries.hero());
+  const { data: settings } = useQuery(contentQueries.settings());
   const solid = location.pathname !== "/" || scrolled || open;
   const villageName = lang === "ar" ? hero?.title_ar : hero?.title_en;
 
@@ -40,7 +41,7 @@ export function SiteHeader() {
       <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-3 sm:px-8 lg:flex lg:justify-between">
         <Link to="/" hash="top" className="flex min-w-0 items-center gap-3">
           <img
-            src={crest}
+            src={settings?.logo || crest}
             alt=""
             width={816}
             height={816}
@@ -94,9 +95,7 @@ export function SiteHeader() {
             aria-label={t(site.menu)}
             className={cn(
               "grid h-11 w-11 shrink-0 place-items-center rounded-full border transition-colors lg:hidden",
-              solid
-                ? "border-border text-foreground"
-                : "border-parchment/40 text-parchment",
+              solid ? "border-border text-foreground" : "border-parchment/40 text-parchment",
             )}
           >
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}

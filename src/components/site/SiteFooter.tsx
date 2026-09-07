@@ -28,7 +28,7 @@ export function SiteFooter() {
           <div>
             <div className="flex min-w-0 items-center gap-3">
               <img
-                src={crest}
+                src={settings?.logo || crest}
                 alt=""
                 loading="lazy"
                 width={816}

@@ -82,6 +82,7 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
   const [articleForm, setArticleForm] = useState<TablesInsert<"articles">>(emptyArticle);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [settingsForm, setSettingsForm] = useState({
+    logo: "",
     contact_email: "",
     phone: "",
     address_ar: "",
@@ -182,6 +183,7 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
     const settings = settingsQuery.data;
     if (!settings) return;
     setSettingsForm({
+      logo: settings.logo ?? "",
       contact_email: settings.contact_email ?? "",
       phone: settings.phone ?? "",
       address_ar: settings.address_ar ?? "",
@@ -224,9 +226,19 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const uploadLogo = useMutation({
+    mutationFn: (file: File) => uploadImage(file, "site"),
+    onSuccess: (url) => {
+      setSettingsForm((current) => ({ ...current, logo: url }));
+      toast.success("Logo uploaded. Save settings to publish it.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const saveSettings = useMutation({
     mutationFn: async () => {
       const payload: TablesUpdate<"settings"> = {
+        logo: settingsForm.logo || null,
         contact_email: settingsForm.contact_email || null,
         phone: settingsForm.phone || null,
         address_ar: settingsForm.address_ar || null,
@@ -468,6 +480,27 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
                 </p>
               </div>
             </div>
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              {settingsForm.logo ? (
+                <img
+                  src={settingsForm.logo}
+                  alt=""
+                  className="h-14 w-14 rounded-full border border-border object-cover"
+                />
+              ) : null}
+              <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm hover:border-accent">
+                <ImageUp className="h-4 w-4" /> {settingsForm.logo ? "Replace logo" : "Upload logo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) uploadLogo.mutate(file);
+                  }}
+                />
+              </label>
+            </div>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <input
                 className={inputClass}
@@ -567,7 +600,10 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
               />
             </div>
             <div className="mt-4">
-              <Button onClick={() => saveSettings.mutate()} disabled={saveSettings.isPending}>
+              <Button
+                onClick={() => saveSettings.mutate()}
+                disabled={saveSettings.isPending || uploadLogo.isPending}
+              >
                 <Save /> Save settings
               </Button>
             </div>
