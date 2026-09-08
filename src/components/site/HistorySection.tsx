@@ -3,6 +3,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { sections } from "@/i18n/translations";
 import { useLocalizedField } from "@/hooks/useLocalizedField";
 import { contentQueries } from "@/services/queries";
+import { useMediaSrc } from "@/hooks/useMediaSrc";
 import { Reveal } from "./Reveal";
 import { SectionShell } from "./SectionShell";
 import alley from "@/assets/stone-alley.jpg";
@@ -12,14 +13,18 @@ export function HistorySection() {
   const field = useLocalizedField();
   const s = sections.history;
   const { data: entries = [] } = useQuery(contentQueries.history());
+  const { data: intro } = useQuery(contentQueries.sectionIntro("history"));
+  const image = useMediaSrc(intro?.image, alley) ?? alley;
+  const title = field(intro, "title") || t(s.title);
+  const body = field(intro, "body") || t(s.body);
 
   return (
-    <SectionShell id="history" eyebrow={t(s.eyebrow)} title={t(s.title)} body={t(s.body)}>
+    <SectionShell id="history" eyebrow={t(s.eyebrow)} title={title} body={body}>
       <div className="mt-16 grid gap-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <Reveal className="lg:sticky lg:top-28 lg:self-start">
           <figure className="sepia-frame overflow-hidden rounded-sm">
             <img
-              src={alley}
+              src={image}
               alt=""
               loading="lazy"
               width={1200}

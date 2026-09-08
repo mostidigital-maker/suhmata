@@ -10,6 +10,8 @@ export function SiteFooter() {
   const { data: settings } = useQuery(contentQueries.settings());
   const { data: hero } = useQuery(contentQueries.hero());
   const villageName = lang === "ar" ? hero?.title_ar : hero?.title_en;
+  const district =
+    (lang === "ar" ? hero?.district_ar : hero?.district_en) || t(site.villageTagline);
   const rights = lang === "ar" ? settings?.rights_ar : settings?.rights_en;
   const address = lang === "ar" ? settings?.address_ar : settings?.address_en;
   const year = new Date().getFullYear();
@@ -40,7 +42,7 @@ export function SiteFooter() {
                   {villageName || t(site.villageName)}
                 </span>
                 <span className="block truncate text-[0.65rem] tracking-[0.2em] text-muted-foreground uppercase">
-                  {t(site.villageTagline)}
+                  {district}
                 </span>
               </span>
             </div>

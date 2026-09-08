@@ -187,26 +187,41 @@ export type Database = {
       };
       association_message: {
         Row: {
+          author_name_ar: string | null;
+          author_name_en: string | null;
+          author_title_ar: string | null;
+          author_title_en: string | null;
           content_ar: string;
           content_en: string;
           created_at: string;
           id: string;
+          image: string | null;
           title_ar: string;
           title_en: string;
         };
         Insert: {
+          author_name_ar?: string | null;
+          author_name_en?: string | null;
+          author_title_ar?: string | null;
+          author_title_en?: string | null;
           content_ar?: string;
           content_en?: string;
           created_at?: string;
           id?: string;
+          image?: string | null;
           title_ar?: string;
           title_en?: string;
         };
         Update: {
+          author_name_ar?: string | null;
+          author_name_en?: string | null;
+          author_title_ar?: string | null;
+          author_title_en?: string | null;
           content_ar?: string;
           content_en?: string;
           created_at?: string;
           id?: string;
+          image?: string | null;
           title_ar?: string;
           title_en?: string;
         };
@@ -671,6 +686,8 @@ export type Database = {
         Row: {
           background_image: string | null;
           created_at: string;
+          district_ar: string | null;
+          district_en: string | null;
           id: string;
           subtitle_ar: string;
           subtitle_en: string;
@@ -680,6 +697,8 @@ export type Database = {
         Insert: {
           background_image?: string | null;
           created_at?: string;
+          district_ar?: string | null;
+          district_en?: string | null;
           id?: string;
           subtitle_ar?: string;
           subtitle_en?: string;
@@ -689,6 +708,8 @@ export type Database = {
         Update: {
           background_image?: string | null;
           created_at?: string;
+          district_ar?: string | null;
+          district_en?: string | null;
           id?: string;
           subtitle_ar?: string;
           subtitle_en?: string;
@@ -1081,6 +1102,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      section_intros: {
+        Row: {
+          body_ar: string;
+          body_en: string;
+          created_at: string;
+          id: string;
+          image: string | null;
+          key: string;
+          title_ar: string;
+          title_en: string;
+          updated_at: string;
+        };
+        Insert: {
+          body_ar?: string;
+          body_en?: string;
+          created_at?: string;
+          id?: string;
+          image?: string | null;
+          key: string;
+          title_ar?: string;
+          title_en?: string;
+          updated_at?: string;
+        };
+        Update: {
+          body_ar?: string;
+          body_en?: string;
+          created_at?: string;
+          id?: string;
+          image?: string | null;
+          key?: string;
+          title_ar?: string;
+          title_en?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       settings: {
         Row: {
           address_ar: string | null;
@@ -1092,6 +1149,14 @@ export type Database = {
           id: string;
           instagram: string | null;
           logo: string | null;
+          location_altitude_ar: string | null;
+          location_altitude_en: string | null;
+          location_district_ar: string | null;
+          location_district_en: string | null;
+          location_land_area_ar: string | null;
+          location_land_area_en: string | null;
+          location_population_ar: string | null;
+          location_population_en: string | null;
           map_embed_url: string | null;
           phone: string | null;
           rights_ar: string | null;
@@ -1109,6 +1174,14 @@ export type Database = {
           id?: string;
           instagram?: string | null;
           logo?: string | null;
+          location_altitude_ar?: string | null;
+          location_altitude_en?: string | null;
+          location_district_ar?: string | null;
+          location_district_en?: string | null;
+          location_land_area_ar?: string | null;
+          location_land_area_en?: string | null;
+          location_population_ar?: string | null;
+          location_population_en?: string | null;
           map_embed_url?: string | null;
           phone?: string | null;
           rights_ar?: string | null;
@@ -1126,6 +1199,14 @@ export type Database = {
           id?: string;
           instagram?: string | null;
           logo?: string | null;
+          location_altitude_ar?: string | null;
+          location_altitude_en?: string | null;
+          location_district_ar?: string | null;
+          location_district_en?: string | null;
+          location_land_area_ar?: string | null;
+          location_land_area_en?: string | null;
+          location_population_ar?: string | null;
+          location_population_en?: string | null;
           map_embed_url?: string | null;
           phone?: string | null;
           rights_ar?: string | null;

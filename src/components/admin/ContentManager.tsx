@@ -77,10 +77,37 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
     title_en: "",
     subtitle_ar: "",
     subtitle_en: "",
+    district_ar: "",
+    district_en: "",
     background_image: "",
   });
   const [articleForm, setArticleForm] = useState<TablesInsert<"articles">>(emptyArticle);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [associationForm, setAssociationForm] = useState({
+    title_ar: "",
+    title_en: "",
+    content_ar: "",
+    content_en: "",
+    author_name_ar: "",
+    author_name_en: "",
+    author_title_ar: "",
+    author_title_en: "",
+    image: "",
+  });
+  const [historyIntroForm, setHistoryIntroForm] = useState({
+    title_ar: "",
+    title_en: "",
+    body_ar: "",
+    body_en: "",
+    image: "",
+  });
+  const [locationIntroForm, setLocationIntroForm] = useState({
+    title_ar: "",
+    title_en: "",
+    body_ar: "",
+    body_en: "",
+    image: "",
+  });
   const [settingsForm, setSettingsForm] = useState({
     logo: "",
     contact_email: "",
@@ -94,6 +121,15 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
     whatsapp: "",
     google_maps: "",
     waze: "",
+    map_embed_url: "",
+    location_district_ar: "",
+    location_district_en: "",
+    location_altitude_ar: "",
+    location_altitude_en: "",
+    location_land_area_ar: "",
+    location_land_area_en: "",
+    location_population_ar: "",
+    location_population_en: "",
   });
   const [locationForm, setLocationForm] = useState<TablesInsert<"map_locations">>(emptyLocation);
   const [editingLocationId, setEditingLocationId] = useState<string | null>(null);
@@ -154,6 +190,31 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
     },
   });
 
+  const associationQuery = useQuery({
+    queryKey: ["admin", "association"],
+    enabled: canEditIdentity,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("association_message")
+        .select("*")
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  });
+
+  const sectionIntrosQuery = useQuery({
+    queryKey: ["admin", "section_intros"],
+    enabled: canEditIdentity,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("section_intros").select("*");
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  });
+
   const locationsQuery = useQuery({
     queryKey: ["admin", "map_locations"],
     enabled: canEditContent,
@@ -175,9 +236,52 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
       title_en: hero.title_en,
       subtitle_ar: hero.subtitle_ar,
       subtitle_en: hero.subtitle_en,
+      district_ar: hero.district_ar ?? "",
+      district_en: hero.district_en ?? "",
       background_image: hero.background_image ?? "",
     });
   }, [heroQuery.data]);
+
+  useEffect(() => {
+    const association = associationQuery.data;
+    if (!association) return;
+    setAssociationForm({
+      title_ar: association.title_ar,
+      title_en: association.title_en,
+      content_ar: association.content_ar,
+      content_en: association.content_en,
+      author_name_ar: association.author_name_ar ?? "",
+      author_name_en: association.author_name_en ?? "",
+      author_title_ar: association.author_title_ar ?? "",
+      author_title_en: association.author_title_en ?? "",
+      image: association.image ?? "",
+    });
+  }, [associationQuery.data]);
+
+  useEffect(() => {
+    const intros = sectionIntrosQuery.data;
+    if (!intros) return;
+    const history = intros.find((row) => row.key === "history");
+    if (history) {
+      setHistoryIntroForm({
+        title_ar: history.title_ar,
+        title_en: history.title_en,
+        body_ar: history.body_ar,
+        body_en: history.body_en,
+        image: history.image ?? "",
+      });
+    }
+    const location = intros.find((row) => row.key === "location");
+    if (location) {
+      setLocationIntroForm({
+        title_ar: location.title_ar,
+        title_en: location.title_en,
+        body_ar: location.body_ar,
+        body_en: location.body_en,
+        image: location.image ?? "",
+      });
+    }
+  }, [sectionIntrosQuery.data]);
 
   useEffect(() => {
     const settings = settingsQuery.data;
@@ -195,12 +299,26 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
       whatsapp: settings.whatsapp ?? "",
       google_maps: settings.google_maps ?? "",
       waze: settings.waze ?? "",
+      map_embed_url: settings.map_embed_url ?? "",
+      location_district_ar: settings.location_district_ar ?? "",
+      location_district_en: settings.location_district_en ?? "",
+      location_altitude_ar: settings.location_altitude_ar ?? "",
+      location_altitude_en: settings.location_altitude_en ?? "",
+      location_land_area_ar: settings.location_land_area_ar ?? "",
+      location_land_area_en: settings.location_land_area_en ?? "",
+      location_population_ar: settings.location_population_ar ?? "",
+      location_population_en: settings.location_population_en ?? "",
     });
   }, [settingsQuery.data]);
 
   const saveHero = useMutation({
     mutationFn: async () => {
-      const payload = { ...heroForm, background_image: heroForm.background_image || null };
+      const payload = {
+        ...heroForm,
+        district_ar: heroForm.district_ar || null,
+        district_en: heroForm.district_en || null,
+        background_image: heroForm.background_image || null,
+      };
       const existing = heroQuery.data;
       const result = existing
         ? await supabase.from("hero_content").update(payload).eq("id", existing.id)
@@ -235,6 +353,94 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const uploadAssociationImage = useMutation({
+    mutationFn: (file: File) => uploadImage(file, "site"),
+    onSuccess: (url) => {
+      setAssociationForm((current) => ({ ...current, image: url }));
+      toast.success("Image uploaded. Save to publish it.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const uploadHistoryIntroImage = useMutation({
+    mutationFn: (file: File) => uploadImage(file, "site"),
+    onSuccess: (url) => {
+      setHistoryIntroForm((current) => ({ ...current, image: url }));
+      toast.success("Image uploaded. Save to publish it.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const uploadLocationIntroImage = useMutation({
+    mutationFn: (file: File) => uploadImage(file, "site"),
+    onSuccess: (url) => {
+      setLocationIntroForm((current) => ({ ...current, image: url }));
+      toast.success("Image uploaded. Save to publish it.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const saveAssociation = useMutation({
+    mutationFn: async () => {
+      const payload = {
+        title_ar: associationForm.title_ar,
+        title_en: associationForm.title_en,
+        content_ar: associationForm.content_ar,
+        content_en: associationForm.content_en,
+        author_name_ar: associationForm.author_name_ar || null,
+        author_name_en: associationForm.author_name_en || null,
+        author_title_ar: associationForm.author_title_ar || null,
+        author_title_en: associationForm.author_title_en || null,
+        image: associationForm.image || null,
+      };
+      const existing = associationQuery.data;
+      const result = existing
+        ? await supabase.from("association_message").update(payload).eq("id", existing.id)
+        : await supabase.from("association_message").insert(payload);
+      if (result.error) throw new Error(result.error.message);
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["admin", "association"] }),
+        queryClient.invalidateQueries({ queryKey: ["association_message"] }),
+      ]);
+      toast.success("Welcome message updated");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const saveSectionIntro = useMutation({
+    mutationFn: async ({
+      key,
+      form,
+    }: {
+      key: "history" | "location";
+      form: { title_ar: string; title_en: string; body_ar: string; body_en: string; image: string };
+    }) => {
+      const existing = sectionIntrosQuery.data?.find((row) => row.key === key);
+      const payload = {
+        key,
+        title_ar: form.title_ar,
+        title_en: form.title_en,
+        body_ar: form.body_ar,
+        body_en: form.body_en,
+        image: form.image || null,
+      };
+      const result = existing
+        ? await supabase.from("section_intros").update(payload).eq("id", existing.id)
+        : await supabase.from("section_intros").insert(payload);
+      if (result.error) throw new Error(result.error.message);
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["admin", "section_intros"] }),
+        queryClient.invalidateQueries({ queryKey: ["section_intro"] }),
+      ]);
+      toast.success("Section updated");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const saveSettings = useMutation({
     mutationFn: async () => {
       const payload: TablesUpdate<"settings"> = {
@@ -250,6 +456,15 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
         whatsapp: settingsForm.whatsapp || null,
         google_maps: settingsForm.google_maps || null,
         waze: settingsForm.waze || null,
+        map_embed_url: settingsForm.map_embed_url || null,
+        location_district_ar: settingsForm.location_district_ar || null,
+        location_district_en: settingsForm.location_district_en || null,
+        location_altitude_ar: settingsForm.location_altitude_ar || null,
+        location_altitude_en: settingsForm.location_altitude_en || null,
+        location_land_area_ar: settingsForm.location_land_area_ar || null,
+        location_land_area_en: settingsForm.location_land_area_en || null,
+        location_population_ar: settingsForm.location_population_ar || null,
+        location_population_en: settingsForm.location_population_en || null,
       };
       const existing = settingsQuery.data;
       const result = existing
@@ -445,6 +660,19 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
                 onChange={(event) => setHeroForm({ ...heroForm, subtitle_en: event.target.value })}
                 placeholder="Village introduction in English"
               />
+              <input
+                className={inputClass}
+                value={heroForm.district_ar}
+                onChange={(event) => setHeroForm({ ...heroForm, district_ar: event.target.value })}
+                placeholder="السطر الصغير تحت الاسم، مثال: قضاء عكا · فلسطين · قبل ١٩٤٨"
+              />
+              <input
+                className={inputClass}
+                dir="ltr"
+                value={heroForm.district_en}
+                onChange={(event) => setHeroForm({ ...heroForm, district_en: event.target.value })}
+                placeholder="Small line under the name, e.g. Acre District · Palestine · pre-1948"
+              />
             </div>
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm hover:border-accent">
@@ -605,6 +833,382 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
                 disabled={saveSettings.isPending || uploadLogo.isPending}
               >
                 <Save /> Save settings
+              </Button>
+            </div>
+          </section>
+
+          <section className="mt-12 rounded-sm border border-border bg-card p-5 sm:p-7">
+            <div className="flex items-center gap-3">
+              <MapPin className="h-5 w-5 text-olive" />
+              <div>
+                <h2 className="font-display text-2xl font-semibold">
+                  قسم الموقع · Location section
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  The map embed and fact sheet (district, elevation, land area, population) shown on
+                  the homepage &quot;Where the village stood&quot; section.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <input
+                className={`${inputClass} sm:col-span-2`}
+                dir="ltr"
+                value={settingsForm.map_embed_url}
+                onChange={(event) =>
+                  setSettingsForm({ ...settingsForm, map_embed_url: event.target.value })
+                }
+                placeholder='Google Maps embed URL (Google Maps → Share → Embed a map → copy the src="..." part)'
+              />
+              <input
+                className={inputClass}
+                value={settingsForm.location_district_ar}
+                onChange={(event) =>
+                  setSettingsForm({ ...settingsForm, location_district_ar: event.target.value })
+                }
+                placeholder="القضاء بالعربية، مثال: قضاء عكا"
+              />
+              <input
+                className={inputClass}
+                dir="ltr"
+                value={settingsForm.location_district_en}
+                onChange={(event) =>
+                  setSettingsForm({ ...settingsForm, location_district_en: event.target.value })
+                }
+                placeholder="District in English"
+              />
+              <input
+                className={inputClass}
+                value={settingsForm.location_altitude_ar}
+                onChange={(event) =>
+                  setSettingsForm({ ...settingsForm, location_altitude_ar: event.target.value })
+                }
+                placeholder="الارتفاع بالعربية، مثال: ٤٥٠ م"
+              />
+              <input
+                className={inputClass}
+                dir="ltr"
+                value={settingsForm.location_altitude_en}
+                onChange={(event) =>
+                  setSettingsForm({ ...settingsForm, location_altitude_en: event.target.value })
+                }
+                placeholder="Elevation in English"
+              />
+              <input
+                className={inputClass}
+                value={settingsForm.location_land_area_ar}
+                onChange={(event) =>
+                  setSettingsForm({ ...settingsForm, location_land_area_ar: event.target.value })
+                }
+                placeholder="مساحة الأرض بالعربية، مثال: ٥٠٠٠ دونم"
+              />
+              <input
+                className={inputClass}
+                dir="ltr"
+                value={settingsForm.location_land_area_en}
+                onChange={(event) =>
+                  setSettingsForm({ ...settingsForm, location_land_area_en: event.target.value })
+                }
+                placeholder="Land area in English"
+              />
+              <input
+                className={inputClass}
+                value={settingsForm.location_population_ar}
+                onChange={(event) =>
+                  setSettingsForm({ ...settingsForm, location_population_ar: event.target.value })
+                }
+                placeholder="عدد السكان بالعربية"
+              />
+              <input
+                className={inputClass}
+                dir="ltr"
+                value={settingsForm.location_population_en}
+                onChange={(event) =>
+                  setSettingsForm({ ...settingsForm, location_population_en: event.target.value })
+                }
+                placeholder="Population in English"
+              />
+            </div>
+            <div className="mt-4">
+              <Button onClick={() => saveSettings.mutate()} disabled={saveSettings.isPending}>
+                <Save /> Save location section
+              </Button>
+            </div>
+          </section>
+
+          <section className="mt-12 rounded-sm border border-border bg-card p-5 sm:p-7">
+            <div className="flex items-center gap-3">
+              <Newspaper className="h-5 w-5 text-olive" />
+              <div>
+                <h2 className="font-display text-2xl font-semibold">
+                  كلمة الجمعية · Welcome message
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  The association's welcome message, its signature, and its illustration.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              {associationForm.image ? (
+                <img
+                  src={associationForm.image}
+                  alt=""
+                  className="h-20 w-28 rounded-sm border border-border object-cover"
+                />
+              ) : null}
+              <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm hover:border-accent">
+                <ImageUp className="h-4 w-4" />{" "}
+                {associationForm.image ? "Replace image" : "Upload image"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) uploadAssociationImage.mutate(file);
+                  }}
+                />
+              </label>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <input
+                className={inputClass}
+                value={associationForm.title_ar}
+                onChange={(event) =>
+                  setAssociationForm({ ...associationForm, title_ar: event.target.value })
+                }
+                placeholder="عنوان القسم بالعربية"
+              />
+              <input
+                className={inputClass}
+                dir="ltr"
+                value={associationForm.title_en}
+                onChange={(event) =>
+                  setAssociationForm({ ...associationForm, title_en: event.target.value })
+                }
+                placeholder="Section title in English"
+              />
+              <textarea
+                className={`${inputClass} min-h-28`}
+                value={associationForm.content_ar}
+                onChange={(event) =>
+                  setAssociationForm({ ...associationForm, content_ar: event.target.value })
+                }
+                placeholder="نص كلمة الجمعية بالعربية"
+              />
+              <textarea
+                className={`${inputClass} min-h-28`}
+                dir="ltr"
+                value={associationForm.content_en}
+                onChange={(event) =>
+                  setAssociationForm({ ...associationForm, content_en: event.target.value })
+                }
+                placeholder="Welcome message in English"
+              />
+              <input
+                className={inputClass}
+                value={associationForm.author_name_ar}
+                onChange={(event) =>
+                  setAssociationForm({ ...associationForm, author_name_ar: event.target.value })
+                }
+                placeholder="اسم رئيس الجمعية بالعربية"
+              />
+              <input
+                className={inputClass}
+                dir="ltr"
+                value={associationForm.author_name_en}
+                onChange={(event) =>
+                  setAssociationForm({ ...associationForm, author_name_en: event.target.value })
+                }
+                placeholder="Chairperson name in English"
+              />
+              <input
+                className={inputClass}
+                value={associationForm.author_title_ar}
+                onChange={(event) =>
+                  setAssociationForm({ ...associationForm, author_title_ar: event.target.value })
+                }
+                placeholder="صفة رئيس الجمعية بالعربية، مثال: رئيس الجمعية"
+              />
+              <input
+                className={inputClass}
+                dir="ltr"
+                value={associationForm.author_title_en}
+                onChange={(event) =>
+                  setAssociationForm({ ...associationForm, author_title_en: event.target.value })
+                }
+                placeholder="Chairperson title in English"
+              />
+            </div>
+            <div className="mt-4">
+              <Button
+                onClick={() => saveAssociation.mutate()}
+                disabled={saveAssociation.isPending || uploadAssociationImage.isPending}
+              >
+                <Save /> Save welcome message
+              </Button>
+            </div>
+          </section>
+
+          <section className="mt-12 rounded-sm border border-border bg-card p-5 sm:p-7">
+            <div className="flex items-center gap-3">
+              <Newspaper className="h-5 w-5 text-olive" />
+              <div>
+                <h2 className="font-display text-2xl font-semibold">
+                  مقدمة تاريخ القرية · History section intro
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  The heading, intro paragraph and side image above the history timeline. The
+                  timeline entries themselves are managed separately, below.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              {historyIntroForm.image ? (
+                <img
+                  src={historyIntroForm.image}
+                  alt=""
+                  className="h-20 w-28 rounded-sm border border-border object-cover"
+                />
+              ) : null}
+              <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm hover:border-accent">
+                <ImageUp className="h-4 w-4" />{" "}
+                {historyIntroForm.image ? "Replace image" : "Upload image"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) uploadHistoryIntroImage.mutate(file);
+                  }}
+                />
+              </label>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <input
+                className={inputClass}
+                value={historyIntroForm.title_ar}
+                onChange={(event) =>
+                  setHistoryIntroForm({ ...historyIntroForm, title_ar: event.target.value })
+                }
+                placeholder="العنوان بالعربية"
+              />
+              <input
+                className={inputClass}
+                dir="ltr"
+                value={historyIntroForm.title_en}
+                onChange={(event) =>
+                  setHistoryIntroForm({ ...historyIntroForm, title_en: event.target.value })
+                }
+                placeholder="Title in English"
+              />
+              <textarea
+                className={`${inputClass} min-h-28`}
+                value={historyIntroForm.body_ar}
+                onChange={(event) =>
+                  setHistoryIntroForm({ ...historyIntroForm, body_ar: event.target.value })
+                }
+                placeholder="النص التمهيدي بالعربية"
+              />
+              <textarea
+                className={`${inputClass} min-h-28`}
+                dir="ltr"
+                value={historyIntroForm.body_en}
+                onChange={(event) =>
+                  setHistoryIntroForm({ ...historyIntroForm, body_en: event.target.value })
+                }
+                placeholder="Intro paragraph in English"
+              />
+            </div>
+            <div className="mt-4">
+              <Button
+                onClick={() => saveSectionIntro.mutate({ key: "history", form: historyIntroForm })}
+                disabled={saveSectionIntro.isPending || uploadHistoryIntroImage.isPending}
+              >
+                <Save /> Save history intro
+              </Button>
+            </div>
+          </section>
+
+          <section className="mt-12 rounded-sm border border-border bg-card p-5 sm:p-7">
+            <div className="flex items-center gap-3">
+              <MapPin className="h-5 w-5 text-olive" />
+              <div>
+                <h2 className="font-display text-2xl font-semibold">
+                  مقدمة قسم الموقع · Location section intro
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  The heading, intro paragraph and side image next to the map and fact sheet.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              {locationIntroForm.image ? (
+                <img
+                  src={locationIntroForm.image}
+                  alt=""
+                  className="h-20 w-28 rounded-sm border border-border object-cover"
+                />
+              ) : null}
+              <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm hover:border-accent">
+                <ImageUp className="h-4 w-4" />{" "}
+                {locationIntroForm.image ? "Replace image" : "Upload image"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) uploadLocationIntroImage.mutate(file);
+                  }}
+                />
+              </label>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <input
+                className={inputClass}
+                value={locationIntroForm.title_ar}
+                onChange={(event) =>
+                  setLocationIntroForm({ ...locationIntroForm, title_ar: event.target.value })
+                }
+                placeholder="العنوان بالعربية"
+              />
+              <input
+                className={inputClass}
+                dir="ltr"
+                value={locationIntroForm.title_en}
+                onChange={(event) =>
+                  setLocationIntroForm({ ...locationIntroForm, title_en: event.target.value })
+                }
+                placeholder="Title in English"
+              />
+              <textarea
+                className={`${inputClass} min-h-28`}
+                value={locationIntroForm.body_ar}
+                onChange={(event) =>
+                  setLocationIntroForm({ ...locationIntroForm, body_ar: event.target.value })
+                }
+                placeholder="النص التمهيدي بالعربية"
+              />
+              <textarea
+                className={`${inputClass} min-h-28`}
+                dir="ltr"
+                value={locationIntroForm.body_en}
+                onChange={(event) =>
+                  setLocationIntroForm({ ...locationIntroForm, body_en: event.target.value })
+                }
+                placeholder="Intro paragraph in English"
+              />
+            </div>
+            <div className="mt-4">
+              <Button
+                onClick={() =>
+                  saveSectionIntro.mutate({ key: "location", form: locationIntroForm })
+                }
+                disabled={saveSectionIntro.isPending || uploadLocationIntroImage.isPending}
+              >
+                <Save /> Save location intro
               </Button>
             </div>
           </section>

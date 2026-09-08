@@ -24,6 +24,7 @@ import {
   fetchPastEvents,
   fetchRelatedArticles,
   fetchSettings,
+  fetchSectionIntro,
   fetchUpcomingEvents,
   searchArticles,
   GALLERY_PAGE_SIZE,
@@ -55,6 +56,8 @@ export const contentQueries = {
     queryOptions({ queryKey: ["association_message"], queryFn: fetchAssociationMessage }),
   history: () => queryOptions({ queryKey: ["history"], queryFn: fetchHistory }),
   settings: () => queryOptions({ queryKey: ["settings"], queryFn: fetchSettings }),
+  sectionIntro: (key: string) =>
+    queryOptions({ queryKey: ["section_intro", key], queryFn: () => fetchSectionIntro(key) }),
   categories: () => queryOptions({ queryKey: ["categories"], queryFn: fetchCategories }),
 
   articles: (limit = 3) =>
@@ -184,7 +187,10 @@ export const heritageQueries = {
   memorials: (limit = 48) =>
     queryOptions({ queryKey: ["memorials", limit], queryFn: () => fetchMemorials(limit) }),
   memorial: (slug: string) =>
-    queryOptions({ queryKey: ["memorials", "slug", slug], queryFn: () => fetchMemorialBySlug(slug) }),
+    queryOptions({
+      queryKey: ["memorials", "slug", slug],
+      queryFn: () => fetchMemorialBySlug(slug),
+    }),
 };
 
 export const searchQueries = {

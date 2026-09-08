@@ -11,10 +11,12 @@ export function HeroSection() {
   const { t } = useLanguage();
   const field = useLocalizedField();
   const { data: hero } = useQuery(contentQueries.hero());
+  const { data: settings } = useQuery(contentQueries.settings());
 
   const background = useMediaSrc(hero?.background_image, heroImage) ?? heroImage;
   const title = field(hero, "title") || t(site.villageName);
   const subtitle = field(hero, "subtitle") || t(site.heroIntro);
+  const district = field(hero, "district") || t(site.villageTagline);
 
   return (
     <section id="top" className="relative isolate min-h-[92svh] overflow-hidden">
@@ -36,7 +38,7 @@ export function HeroSection() {
 
       <div className="mx-auto flex min-h-[92svh] max-w-6xl flex-col items-center justify-center px-gutter pt-32 pb-28 text-center">
         <img
-          src={crest}
+          src={settings?.logo || crest}
           alt={t(site.associationName)}
           width={816}
           height={816}
@@ -45,7 +47,7 @@ export function HeroSection() {
         />
 
         <p className="rise-in mt-9 font-body text-[0.7rem] tracking-[0.45em] text-gold-soft uppercase">
-          {t(site.villageTagline)}
+          {district}
         </p>
 
         <h1

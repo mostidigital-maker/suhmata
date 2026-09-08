@@ -23,6 +23,7 @@ export type Contribution = Tables<"contributions">;
 export type GuestbookEntry = Tables<"guestbook">;
 export type VisitorVideo = Tables<"visitor_videos">;
 export type SiteSettings = Tables<"settings">;
+export type SectionIntro = Tables<"section_intros">;
 
 export type ArchiveKind = "document" | "map" | "photo" | "audio" | "video" | "pdf";
 export type ContributionKind = "story" | "image" | "video";
@@ -77,6 +78,10 @@ export async function fetchSettings(): Promise<SiteSettings | null> {
       .limit(1)
       .maybeSingle(),
   );
+}
+
+export async function fetchSectionIntro(key: string): Promise<SectionIntro | null> {
+  return unwrap(await supabase.from("section_intros").select("*").eq("key", key).maybeSingle());
 }
 
 /* -------------------------------------------------- taxonomy */
@@ -153,7 +158,12 @@ export async function fetchFeaturedArticle(): Promise<Article | null> {
 
 export async function fetchArticleBySlug(slug: string): Promise<Article | null> {
   return unwrap(
-    await supabase.from("articles").select("*").eq("published", true).eq("slug", slug).maybeSingle(),
+    await supabase
+      .from("articles")
+      .select("*")
+      .eq("published", true)
+      .eq("slug", slug)
+      .maybeSingle(),
   );
 }
 
@@ -422,4 +432,3 @@ export async function uploadVisitorVideoFile(file: File): Promise<string> {
   if (error) throw new Error(error.message);
   return path;
 }
-

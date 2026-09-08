@@ -3,6 +3,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { sections } from "@/i18n/translations";
 import { useLocalizedField } from "@/hooks/useLocalizedField";
 import { contentQueries } from "@/services/queries";
+import { useMediaSrc } from "@/hooks/useMediaSrc";
 import { Reveal } from "./Reveal";
 import { SectionShell } from "./SectionShell";
 import olive from "@/assets/olive-grove.jpg";
@@ -12,6 +13,9 @@ export function WelcomeSection() {
   const field = useLocalizedField();
   const s = sections.welcome;
   const { data: message } = useQuery(contentQueries.association());
+  const image = useMediaSrc(message?.image, olive) ?? olive;
+  const authorName = field(message, "author_name") || t(s.signatureName);
+  const authorTitle = field(message, "author_title") || t(s.signatureRole);
 
   return (
     <SectionShell
@@ -26,14 +30,14 @@ export function WelcomeSection() {
             {field(message, "content")}
           </blockquote>
           <div className="mt-8">
-            <p className="font-display text-xl font-semibold">{t(s.signatureName)}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{t(s.signatureRole)}</p>
+            <p className="font-display text-xl font-semibold">{authorName}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{authorTitle}</p>
           </div>
         </Reveal>
         <Reveal delay={120}>
           <figure className="sepia-frame overflow-hidden rounded-sm">
             <img
-              src={olive}
+              src={image}
               alt=""
               loading="lazy"
               width={1200}
