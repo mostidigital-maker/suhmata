@@ -9,6 +9,7 @@ import { mainNav } from "@/i18n/pages";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import logoFallback from "@/assets/site-logo.jpg";
 import { contentQueries } from "@/services/queries";
+import { useFallbackImage } from "@/hooks/useFallbackImage";
 
 export function SiteHeader() {
   const { lang, t } = useLanguage();
@@ -17,6 +18,7 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { data: hero } = useQuery(contentQueries.hero());
   const { data: settings } = useQuery(contentQueries.settings());
+  const logo = useFallbackImage(settings?.logo, logoFallback);
   const solid = location.pathname !== "/" || scrolled || open;
   const villageName = lang === "ar" ? hero?.title_ar : hero?.title_en;
 
@@ -41,7 +43,8 @@ export function SiteHeader() {
       <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-3 sm:px-8 lg:flex lg:justify-between">
         <Link to="/" hash="top" className="flex min-w-0 items-center gap-3">
           <img
-            src={settings?.logo || logoFallback}
+            src={logo.src}
+            onError={logo.onError}
             alt=""
             width={329}
             height={128}

@@ -6,12 +6,14 @@ import { contentQueries } from "@/services/queries";
 import { useMediaSrc } from "@/hooks/useMediaSrc";
 import heroImage from "@/assets/hero-village.jpg";
 import logoFallback from "@/assets/site-logo.jpg";
+import { useFallbackImage } from "@/hooks/useFallbackImage";
 
 export function HeroSection() {
   const { t } = useLanguage();
   const field = useLocalizedField();
   const { data: hero } = useQuery(contentQueries.hero());
   const { data: settings } = useQuery(contentQueries.settings());
+  const logo = useFallbackImage(settings?.logo, logoFallback);
 
   const background = useMediaSrc(hero?.background_image, heroImage) ?? heroImage;
   const title = field(hero, "title") || t(site.villageName);
@@ -38,7 +40,8 @@ export function HeroSection() {
 
       <div className="mx-auto flex min-h-[92svh] max-w-6xl flex-col items-center justify-center px-gutter pt-32 pb-28 text-center">
         <img
-          src={settings?.logo || logoFallback}
+          src={logo.src}
+          onError={logo.onError}
           alt={t(site.associationName)}
           width={329}
           height={128}

@@ -3,12 +3,14 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { contentQueries } from "@/services/queries";
 import { nav, sections, site } from "@/i18n/translations";
 import logoFallback from "@/assets/site-logo.jpg";
+import { useFallbackImage } from "@/hooks/useFallbackImage";
 
 export function SiteFooter() {
   const { lang, t } = useLanguage();
   const f = sections.footer;
   const { data: settings } = useQuery(contentQueries.settings());
   const { data: hero } = useQuery(contentQueries.hero());
+  const logo = useFallbackImage(settings?.logo, logoFallback);
   const villageName = lang === "ar" ? hero?.title_ar : hero?.title_en;
   const district =
     (lang === "ar" ? hero?.district_ar : hero?.district_en) || t(site.villageTagline);
@@ -30,7 +32,8 @@ export function SiteFooter() {
           <div>
             <div className="flex min-w-0 items-center gap-3">
               <img
-                src={settings?.logo || logoFallback}
+                src={logo.src}
+                onError={logo.onError}
                 alt=""
                 loading="lazy"
                 width={329}
