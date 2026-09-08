@@ -5,7 +5,7 @@ import { useLocalizedField } from "@/hooks/useLocalizedField";
 import { contentQueries } from "@/services/queries";
 import { useMediaSrc } from "@/hooks/useMediaSrc";
 import heroImage from "@/assets/hero-village.jpg";
-import crest from "@/assets/village-crest.png";
+import logoFallback from "@/assets/site-logo.jpg";
 
 export function HeroSection() {
   const { t } = useLanguage();
@@ -38,12 +38,12 @@ export function HeroSection() {
 
       <div className="mx-auto flex min-h-[92svh] max-w-6xl flex-col items-center justify-center px-gutter pt-32 pb-28 text-center">
         <img
-          src={settings?.logo || crest}
+          src={settings?.logo || logoFallback}
           alt={t(site.associationName)}
-          width={816}
-          height={816}
+          width={329}
+          height={128}
           fetchPriority="high"
-          className="fade-in-slow h-24 w-24 sm:h-28 sm:w-28"
+          className="fade-in-slow h-16 w-auto object-contain sm:h-20"
         />
 
         <p className="rise-in mt-9 font-body text-[0.7rem] tracking-[0.45em] text-gold-soft uppercase">

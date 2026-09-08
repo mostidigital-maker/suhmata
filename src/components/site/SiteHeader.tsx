@@ -7,7 +7,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { site } from "@/i18n/translations";
 import { mainNav } from "@/i18n/pages";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import crest from "@/assets/village-crest.png";
+import logoFallback from "@/assets/site-logo.jpg";
 import { contentQueries } from "@/services/queries";
 
 export function SiteHeader() {
@@ -41,12 +41,12 @@ export function SiteHeader() {
       <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-3 sm:px-8 lg:flex lg:justify-between">
         <Link to="/" hash="top" className="flex min-w-0 items-center gap-3">
           <img
-            src={settings?.logo || crest}
+            src={settings?.logo || logoFallback}
             alt=""
-            width={816}
-            height={816}
+            width={329}
+            height={128}
             className={cn(
-              "h-10 w-10 shrink-0 transition-opacity duration-500 sm:h-11 sm:w-11",
+              "h-9 w-auto shrink-0 object-contain transition-opacity duration-500 sm:h-10",
               solid ? "opacity-100" : "opacity-95",
             )}
           />

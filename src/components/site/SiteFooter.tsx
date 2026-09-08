@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { contentQueries } from "@/services/queries";
 import { nav, sections, site } from "@/i18n/translations";
-import crest from "@/assets/village-crest.png";
+import logoFallback from "@/assets/site-logo.jpg";
 
 export function SiteFooter() {
   const { lang, t } = useLanguage();
@@ -30,12 +30,12 @@ export function SiteFooter() {
           <div>
             <div className="flex min-w-0 items-center gap-3">
               <img
-                src={settings?.logo || crest}
+                src={settings?.logo || logoFallback}
                 alt=""
                 loading="lazy"
-                width={816}
-                height={816}
-                className="h-11 w-11 shrink-0"
+                width={329}
+                height={128}
+                className="h-10 w-auto shrink-0 object-contain"
               />
               <span className="min-w-0">
                 <span className="block truncate font-display text-lg font-semibold">
