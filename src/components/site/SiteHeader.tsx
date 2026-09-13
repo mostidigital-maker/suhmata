@@ -10,6 +10,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import logoFallback from "@/assets/site-logo.jpg";
 import { contentQueries } from "@/services/queries";
 import { useFallbackImage } from "@/hooks/useFallbackImage";
+import { useMediaSrc } from "@/hooks/useMediaSrc";
 
 export function SiteHeader() {
   const { lang, t } = useLanguage();
@@ -18,7 +19,8 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { data: hero } = useQuery(contentQueries.hero());
   const { data: settings } = useQuery(contentQueries.settings());
-  const logo = useFallbackImage(settings?.logo, logoFallback);
+  const resolvedLogo = useMediaSrc(settings?.logo);
+  const logo = useFallbackImage(resolvedLogo, logoFallback);
   const solid = location.pathname !== "/" || scrolled || open;
   const villageName = lang === "ar" ? hero?.title_ar : hero?.title_en;
 

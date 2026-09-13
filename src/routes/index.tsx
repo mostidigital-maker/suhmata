@@ -8,42 +8,51 @@ import { EventsSection } from "@/components/site/EventsSection";
 import { GallerySection } from "@/components/site/GallerySection";
 import { StoriesSection } from "@/components/site/StoriesSection";
 import { LocationSection } from "@/components/site/LocationSection";
+import { contentQueries } from "@/services/queries";
 
-const title = "قرية [اسم القرية] — أرشيف التراث الفلسطيني قبل ١٩٤٨";
+const fallbackName = "قرية [اسم القرية]";
 const description =
   "أرشيف رقمي لقرية فلسطينية قبل عام ١٩٤٨: تاريخها، صورها، فعالياتها وروايات أهلها. A digital heritage archive of a Palestinian village before 1948.";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: title },
-      { name: "twitter:description", content: description },
-    ],
-    links: [{ rel: "canonical", href: "/" }],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: title,
-          description,
-          inLanguage: ["ar", "en"],
-          publisher: {
-            "@type": "Organization",
-            name: "Village Heritage & Memory Association",
-          },
-        }),
-      },
-    ],
-  }),
+  loader: async ({ context }) => {
+    const hero = await context.queryClient.ensureQueryData(contentQueries.hero());
+    return { hero };
+  },
+  head: ({ loaderData }) => {
+    const name = loaderData?.hero?.title_ar || fallbackName;
+    const title = `${name} — أرشيف التراث الفلسطيني قبل ١٩٤٨`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: "/" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+      ],
+      links: [{ rel: "canonical", href: "/" }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: title,
+            description,
+            inLanguage: ["ar", "en"],
+            publisher: {
+              "@type": "Organization",
+              name: "Village Heritage & Memory Association",
+            },
+          }),
+        },
+      ],
+    };
+  },
   component: Index,
 });
 

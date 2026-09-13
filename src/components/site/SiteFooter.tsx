@@ -4,13 +4,15 @@ import { contentQueries } from "@/services/queries";
 import { nav, sections, site } from "@/i18n/translations";
 import logoFallback from "@/assets/site-logo.jpg";
 import { useFallbackImage } from "@/hooks/useFallbackImage";
+import { useMediaSrc } from "@/hooks/useMediaSrc";
 
 export function SiteFooter() {
   const { lang, t } = useLanguage();
   const f = sections.footer;
   const { data: settings } = useQuery(contentQueries.settings());
   const { data: hero } = useQuery(contentQueries.hero());
-  const logo = useFallbackImage(settings?.logo, logoFallback);
+  const resolvedLogo = useMediaSrc(settings?.logo);
+  const logo = useFallbackImage(resolvedLogo, logoFallback);
   const villageName = lang === "ar" ? hero?.title_ar : hero?.title_en;
   const district =
     (lang === "ar" ? hero?.district_ar : hero?.district_en) || t(site.villageTagline);

@@ -13,7 +13,8 @@ export function HeroSection() {
   const field = useLocalizedField();
   const { data: hero } = useQuery(contentQueries.hero());
   const { data: settings } = useQuery(contentQueries.settings());
-  const logo = useFallbackImage(settings?.logo, logoFallback);
+  const resolvedLogo = useMediaSrc(settings?.logo);
+  const logo = useFallbackImage(resolvedLogo, logoFallback);
 
   const background = useMediaSrc(hero?.background_image, heroImage) ?? heroImage;
   const title = field(hero, "title") || t(site.villageName);

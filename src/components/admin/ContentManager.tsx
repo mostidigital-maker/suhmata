@@ -5,6 +5,7 @@ import { ImageUp, MapPin, Newspaper, Pencil, Plus, Save, Settings2, Trash2 } fro
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
+import { useMediaSrc } from "@/hooks/useMediaSrc";
 
 type Article = Tables<"articles">;
 type Hero = Tables<"hero_content">;
@@ -133,6 +134,14 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
   });
   const [locationForm, setLocationForm] = useState<TablesInsert<"map_locations">>(emptyLocation);
   const [editingLocationId, setEditingLocationId] = useState<string | null>(null);
+
+  // Uploads store a bare storage path (e.g. "site/uuid.jpg"), not a
+  // directly-loadable URL — resolve each preview thumbnail the same way
+  // the public site does, or the thumbnail shows broken right after upload.
+  const settingsLogoPreview = useMediaSrc(settingsForm.logo);
+  const associationImagePreview = useMediaSrc(associationForm.image);
+  const historyIntroImagePreview = useMediaSrc(historyIntroForm.image);
+  const locationIntroImagePreview = useMediaSrc(locationIntroForm.image);
 
   const heroQuery = useQuery({
     queryKey: ["admin", "hero"],
@@ -711,7 +720,7 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
             <div className="mt-6 flex flex-wrap items-center gap-4">
               {settingsForm.logo ? (
                 <img
-                  src={settingsForm.logo}
+                  src={settingsLogoPreview}
                   alt=""
                   className="h-14 w-14 rounded-full border border-border object-cover"
                 />
@@ -951,7 +960,7 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
             <div className="mt-6 flex flex-wrap items-center gap-4">
               {associationForm.image ? (
                 <img
-                  src={associationForm.image}
+                  src={associationImagePreview}
                   alt=""
                   className="h-20 w-28 rounded-sm border border-border object-cover"
                 />
@@ -1066,7 +1075,7 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
             <div className="mt-6 flex flex-wrap items-center gap-4">
               {historyIntroForm.image ? (
                 <img
-                  src={historyIntroForm.image}
+                  src={historyIntroImagePreview}
                   alt=""
                   className="h-20 w-28 rounded-sm border border-border object-cover"
                 />
@@ -1146,7 +1155,7 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
             <div className="mt-6 flex flex-wrap items-center gap-4">
               {locationIntroForm.image ? (
                 <img
-                  src={locationIntroForm.image}
+                  src={locationIntroImagePreview}
                   alt=""
                   className="h-20 w-28 rounded-sm border border-border object-cover"
                 />
