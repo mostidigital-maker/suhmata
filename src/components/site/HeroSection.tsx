@@ -7,7 +7,6 @@ import { useMediaSrc } from "@/hooks/useMediaSrc";
 import heroImage from "@/assets/hero-village.jpg";
 import logoFallback from "@/assets/site-logo.jpg";
 import { useFallbackImage } from "@/hooks/useFallbackImage";
-import { ChevronDown } from "lucide-react";
 
 export function HeroSection() {
   const { t } = useLanguage();
@@ -34,10 +33,13 @@ export function HeroSection() {
         className="drift-slow absolute inset-0 -z-20 h-full w-full object-cover"
       />
       <div className="dusk-veil absolute inset-0 -z-10" />
-      {/* Gilded plate border, like a framed museum photograph. */}
+      {/* Gilded plate border, like a framed museum photograph. Skipped on
+          small phones, where it just floats over the photo without
+          visually enclosing anything and reads as clutter rather than a
+          frame. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-4 -z-10 border border-parchment/15 sm:inset-7"
+        className="pointer-events-none absolute inset-7 -z-10 hidden border border-parchment/15 sm:block"
       />
 
       <div className="mx-auto flex min-h-[92svh] max-w-6xl flex-col items-center justify-center px-gutter pt-32 pb-28 text-center">
@@ -88,12 +90,12 @@ export function HeroSection() {
 
       <a
         href="#welcome"
-        className="group absolute inset-x-0 bottom-6 flex flex-col items-center gap-2 text-[0.6rem] tracking-[0.35em] text-parchment/55 uppercase transition-colors hover:text-parchment"
+        className="group absolute inset-x-0 bottom-6 flex flex-col items-center gap-3 text-[0.6rem] tracking-[0.35em] text-parchment/55 uppercase transition-colors hover:text-parchment"
       >
         {t(site.scrollHint)}
-        <ChevronDown
-          className="h-4 w-4 animate-bounce transition-transform group-hover:translate-y-0.5"
+        <span
           aria-hidden
+          className="drift-down h-1.5 w-1.5 rotate-45 bg-current transition-transform group-hover:translate-y-0.5"
         />
       </a>
     </section>
