@@ -30,9 +30,6 @@ export function SectionShell({
         className,
       )}
     >
-      {/* Woven seam marking the transition from the previous section. */}
-      <div aria-hidden className="section-seam pointer-events-none absolute inset-x-0 top-0" />
-
       <div className="relative mx-auto max-w-6xl">
         <Reveal>
           <SectionHeading eyebrow={eyebrow} title={title} body={body} tone={tone} />

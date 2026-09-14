@@ -33,14 +33,6 @@ export function HeroSection() {
         className="drift-slow absolute inset-0 -z-20 h-full w-full object-cover"
       />
       <div className="dusk-veil absolute inset-0 -z-10" />
-      {/* Gilded plate border, like a framed museum photograph. Skipped on
-          small phones, where it just floats over the photo without
-          visually enclosing anything and reads as clutter rather than a
-          frame. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-7 -z-10 hidden border border-parchment/15 sm:block"
-      />
 
       <div className="mx-auto flex min-h-[92svh] max-w-6xl flex-col items-center justify-center px-gutter pt-32 pb-28 text-center">
         <img
