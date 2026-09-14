@@ -7,6 +7,7 @@ import { useMediaSrc } from "@/hooks/useMediaSrc";
 import heroImage from "@/assets/hero-village.jpg";
 import logoFallback from "@/assets/site-logo.jpg";
 import { useFallbackImage } from "@/hooks/useFallbackImage";
+import { ChevronDown } from "lucide-react";
 
 export function HeroSection() {
   const { t } = useLanguage();
@@ -85,9 +86,16 @@ export function HeroSection() {
         </div>
       </div>
 
-      <span className="absolute inset-x-0 bottom-6 text-center text-[0.6rem] tracking-[0.35em] text-parchment/55 uppercase">
+      <a
+        href="#welcome"
+        className="group absolute inset-x-0 bottom-6 flex flex-col items-center gap-2 text-[0.6rem] tracking-[0.35em] text-parchment/55 uppercase transition-colors hover:text-parchment"
+      >
         {t(site.scrollHint)}
-      </span>
+        <ChevronDown
+          className="h-4 w-4 animate-bounce transition-transform group-hover:translate-y-0.5"
+          aria-hidden
+        />
+      </a>
     </section>
   );
 }
