@@ -70,7 +70,7 @@ export function SectionHeading({
       {body ? (
         <p
           className={cn(
-            "mt-7 text-lede",
+            "mt-7 text-lede whitespace-pre-line",
             tone === "deep" ? "text-primary-foreground/80" : "text-muted-foreground",
           )}
         >

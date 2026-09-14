@@ -210,7 +210,9 @@ function AdminPage() {
                     {!entry.approved ? "pending" : entry.hidden ? "hidden" : "published"}
                   </span>
                 </div>
-                <p className="mt-2 leading-loose text-muted-foreground">{entry.message}</p>
+                <p className="mt-2 leading-loose whitespace-pre-line text-muted-foreground">
+                  {entry.message}
+                </p>
                 <p className="mt-2 text-xs break-all text-muted-foreground">
                   {[entry.email, entry.facebook, entry.instagram].filter(Boolean).join(" · ")}
                 </p>
@@ -319,7 +321,9 @@ function AdminPage() {
                 </div>
                 {entry.title ? <p className="mt-2 font-medium">{entry.title}</p> : null}
                 {entry.body ? (
-                  <p className="mt-2 leading-loose text-muted-foreground">{entry.body}</p>
+                  <p className="mt-2 leading-loose whitespace-pre-line text-muted-foreground">
+                    {entry.body}
+                  </p>
                 ) : null}
                 {entry.media_url ? (
                   <a

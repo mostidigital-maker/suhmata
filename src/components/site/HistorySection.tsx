@@ -40,7 +40,7 @@ export function HistorySection() {
               <span className="absolute -start-[2.05rem] top-2 h-2.5 w-2.5 rounded-full bg-accent ring-4 ring-background" />
               <Reveal delay={i * 90} variant="unfurl">
                 <h3 className="text-h3 font-semibold">{field(entry, "title")}</h3>
-                <p className="mt-3 leading-loose text-muted-foreground">
+                <p className="mt-3 leading-loose whitespace-pre-line text-muted-foreground">
                   {field(entry, "content")}
                 </p>
               </Reveal>

@@ -17,6 +17,7 @@ export function SiteFooter() {
   const district =
     (lang === "ar" ? hero?.district_ar : hero?.district_en) || t(site.villageTagline);
   const rights = lang === "ar" ? settings?.rights_ar : settings?.rights_en;
+  const about = (lang === "ar" ? settings?.about_ar : settings?.about_en) || t(f.about);
   const address = lang === "ar" ? settings?.address_ar : settings?.address_en;
   const year = new Date().getFullYear();
   const socials = [
@@ -51,7 +52,7 @@ export function SiteFooter() {
                 </span>
               </span>
             </div>
-            <p className="mt-5 leading-loose text-muted-foreground">{t(f.about)}</p>
+            <p className="mt-5 leading-loose whitespace-pre-line text-muted-foreground">{about}</p>
           </div>
 
           <nav>
@@ -71,7 +72,14 @@ export function SiteFooter() {
           </nav>
 
           <div>
-            <h3 className="text-sm tracking-[0.25em] text-olive uppercase">{t(f.contactTitle)}</h3>
+            <h3 className="text-sm tracking-[0.25em] text-olive uppercase">
+              <a
+                href="/guestbook"
+                className="link-quill inline-block transition-colors hover:text-foreground"
+              >
+                {t(f.contactTitle)}
+              </a>
+            </h3>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
               <li>{settings?.contact_email ?? t(f.email)}</li>
               {settings?.phone ? (
@@ -97,7 +105,12 @@ export function SiteFooter() {
 
           <div>
             <h3 className="text-sm tracking-[0.25em] text-olive uppercase">
-              {t(f.contributeTitle)}
+              <a
+                href="/contribute"
+                className="link-quill inline-block transition-colors hover:text-foreground"
+              >
+                {t(f.contributeTitle)}
+              </a>
             </h3>
             <p className="mt-4 leading-loose text-muted-foreground">{t(f.contributeBody)}</p>
           </div>

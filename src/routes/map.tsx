@@ -51,7 +51,12 @@ function MediaThumb({ url, caption }: { url: string; caption?: string }) {
   if (!src) return null;
   return (
     <figure className="sepia-frame overflow-hidden rounded-sm">
-      <img src={src} alt={caption ?? ""} loading="lazy" className="aspect-[4/3] w-full object-cover" />
+      <img
+        src={src}
+        alt={caption ?? ""}
+        loading="lazy"
+        className="aspect-[4/3] w-full object-cover"
+      />
     </figure>
   );
 }
@@ -61,8 +66,7 @@ function MapPage() {
   const field = useLocalizedField();
   const { data: locations = [], isLoading } = useQuery(contentQueries.mapLocations());
   const [activeId, setActiveId] = useState<string | null>(null);
-  const active: MapLocation | undefined =
-    locations.find((l) => l.id === activeId) ?? locations[0];
+  const active: MapLocation | undefined = locations.find((l) => l.id === activeId) ?? locations[0];
 
   return (
     <PageShell>
@@ -131,7 +135,7 @@ function MapPage() {
                 className="mt-6 rounded-sm border border-border bg-card p-6"
               >
                 <h3 className="text-xl font-semibold">{field(active, "name")}</h3>
-                <p className="mt-3 leading-loose text-muted-foreground">
+                <p className="mt-3 leading-loose whitespace-pre-line text-muted-foreground">
                   {field(active, "description")}
                 </p>
                 {field(active, "notes") ? (

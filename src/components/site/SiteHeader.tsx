@@ -64,14 +64,6 @@ export function SiteHeader() {
             >
               {villageName || t(site.villageName)}
             </span>
-            <span
-              className={cn(
-                "block truncate text-[0.65rem] tracking-[0.22em] uppercase",
-                solid ? "text-muted-foreground" : "text-parchment/70",
-              )}
-            >
-              {t(site.associationName)}
-            </span>
           </span>
         </Link>
 

@@ -37,7 +37,7 @@ export function NewsSection() {
               </div>
               <h3 className="mt-5 text-h3 font-semibold">{field(item, "title")}</h3>
               <span aria-hidden className="mt-4 block h-px w-12 bg-accent/50" />
-              <p className="mt-4 grow leading-loose text-muted-foreground">
+              <p className="mt-4 grow leading-loose whitespace-pre-line text-muted-foreground">
                 {field(item, "content")}
               </p>
             </article>

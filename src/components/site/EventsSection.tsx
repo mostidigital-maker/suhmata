@@ -44,7 +44,7 @@ export function EventsSection() {
                       {item.location}
                     </p>
                   ) : null}
-                  <p className="mt-3 leading-loose text-muted-foreground">
+                  <p className="mt-3 leading-loose whitespace-pre-line text-muted-foreground">
                     {field(item, "description")}
                   </p>
                 </div>

@@ -111,6 +111,8 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
   });
   const [settingsForm, setSettingsForm] = useState({
     logo: "",
+    about_ar: "",
+    about_en: "",
     contact_email: "",
     phone: "",
     address_ar: "",
@@ -297,6 +299,8 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
     if (!settings) return;
     setSettingsForm({
       logo: settings.logo ?? "",
+      about_ar: settings.about_ar ?? "",
+      about_en: settings.about_en ?? "",
       contact_email: settings.contact_email ?? "",
       phone: settings.phone ?? "",
       address_ar: settings.address_ar ?? "",
@@ -454,6 +458,8 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
     mutationFn: async () => {
       const payload: TablesUpdate<"settings"> = {
         logo: settingsForm.logo || null,
+        about_ar: settingsForm.about_ar || null,
+        about_en: settingsForm.about_en || null,
         contact_email: settingsForm.contact_email || null,
         phone: settingsForm.phone || null,
         address_ar: settingsForm.address_ar || null,
@@ -737,6 +743,25 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
                   }}
                 />
               </label>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <textarea
+                className={`${inputClass} min-h-20`}
+                value={settingsForm.about_ar}
+                onChange={(event) =>
+                  setSettingsForm({ ...settingsForm, about_ar: event.target.value })
+                }
+                placeholder="نبذة قصيرة عن الأرشيف بالعربية (تظهر أسفل الشعار في تذييل الموقع)"
+              />
+              <textarea
+                className={`${inputClass} min-h-20`}
+                dir="ltr"
+                value={settingsForm.about_en}
+                onChange={(event) =>
+                  setSettingsForm({ ...settingsForm, about_en: event.target.value })
+                }
+                placeholder="Short about blurb in English (shown under the logo in the footer)"
+              />
             </div>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <input
