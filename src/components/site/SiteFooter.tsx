@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { contentQueries } from "@/services/queries";
 import { nav, sections, site } from "@/i18n/translations";
@@ -60,12 +61,13 @@ export function SiteFooter() {
             <ul className="mt-4 space-y-2">
               {nav.map((item) => (
                 <li key={item.id}>
-                  <a
-                    href={`#${item.id}`}
+                  <Link
+                    to="/"
+                    hash={item.id}
                     className="link-quill inline-block min-h-8 text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {item[lang]}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
