@@ -1,11 +1,24 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ImageUp, MapPin, Newspaper, Pencil, Plus, Save, Settings2, Trash2 } from "lucide-react";
+import {
+  Archive,
+  Calendar,
+  ImageUp,
+  Images,
+  MapPin,
+  Newspaper,
+  Pencil,
+  Plus,
+  Save,
+  Settings2,
+  Trash2,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { useMediaSrc } from "@/hooks/useMediaSrc";
+import { resolveMediaUrl } from "@/lib/media";
 
 type Article = Tables<"articles">;
 type Hero = Tables<"hero_content">;
@@ -41,6 +54,58 @@ const emptyLocation: TablesInsert<"map_locations"> = {
   pos_x: 50,
   pos_y: 50,
   sort_order: 0,
+};
+
+const emptyEvent: TablesInsert<"events"> = {
+  slug: "",
+  title_ar: "",
+  title_en: "",
+  summary_ar: "",
+  summary_en: "",
+  description_ar: "",
+  description_en: "",
+  event_date: null,
+  location: "",
+  cover_image: null,
+  archived: false,
+};
+
+const emptyAlbum: TablesInsert<"albums"> = {
+  slug: "",
+  title_ar: "",
+  title_en: "",
+  description_ar: "",
+  description_en: "",
+  category_id: null,
+  cover_image: null,
+  sort_order: 0,
+};
+
+const emptyPhoto: TablesInsert<"gallery"> = {
+  album_id: null,
+  media_url: "",
+  media_type: "image",
+  caption_ar: "",
+  caption_en: "",
+  sort_order: 0,
+};
+
+const emptyArchiveItem: TablesInsert<"archive_items"> = {
+  slug: "",
+  kind: "document",
+  title_ar: "",
+  title_en: "",
+  description_ar: "",
+  description_en: "",
+  notes_ar: "",
+  notes_en: "",
+  file_url: "",
+  thumbnail_url: null,
+  year: "",
+  source: "",
+  category_id: null,
+  downloadable: true,
+  published: true,
 };
 
 function slugify(value: string) {
@@ -136,6 +201,14 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
   });
   const [locationForm, setLocationForm] = useState<TablesInsert<"map_locations">>(emptyLocation);
   const [editingLocationId, setEditingLocationId] = useState<string | null>(null);
+  const [eventForm, setEventForm] = useState<TablesInsert<"events">>(emptyEvent);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [albumForm, setAlbumForm] = useState<TablesInsert<"albums">>(emptyAlbum);
+  const [editingAlbumId, setEditingAlbumId] = useState<string | null>(null);
+  const [photoForm, setPhotoForm] = useState<TablesInsert<"gallery">>(emptyPhoto);
+  const [editingPhotoId, setEditingPhotoId] = useState<string | null>(null);
+  const [archiveForm, setArchiveForm] = useState<TablesInsert<"archive_items">>(emptyArchiveItem);
+  const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
 
   // Uploads store a bare storage path (e.g. "site/uuid.jpg"), not a
   // directly-loadable URL — resolve each preview thumbnail the same way
@@ -234,6 +307,58 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
         .from("map_locations")
         .select("*")
         .order("sort_order", { ascending: true });
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  });
+
+  const eventsQuery = useQuery({
+    queryKey: ["admin", "events"],
+    enabled: canEditContent,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .order("event_date", { ascending: false, nullsFirst: false });
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  });
+
+  const albumsQuery = useQuery({
+    queryKey: ["admin", "albums"],
+    enabled: canEditContent,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("albums")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  });
+
+  const photosQuery = useQuery({
+    queryKey: ["admin", "gallery"],
+    enabled: canEditContent,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("gallery")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  });
+
+  const archiveItemsQuery = useQuery({
+    queryKey: ["admin", "archive_items"],
+    enabled: canEditContent,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("archive_items")
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) throw new Error(error.message);
       return data;
     },
@@ -556,6 +681,282 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
   const onLocationSubmit = (event: FormEvent) => {
     event.preventDefault();
     saveLocation.mutate();
+  };
+
+  const uploadEventCover = useMutation({
+    mutationFn: (file: File) => uploadImage(file, "events"),
+    onSuccess: (url) => {
+      setEventForm((current) => ({ ...current, cover_image: url }));
+      toast.success("Image uploaded. Save the event to publish it.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const saveEvent = useMutation({
+    mutationFn: async () => {
+      const title = String(eventForm.title_en || eventForm.title_ar || "event");
+      const payload = {
+        ...eventForm,
+        slug: slugify(String(eventForm.slug || title)) || `event-${Date.now()}`,
+        event_date: eventForm.event_date || null,
+      };
+      const result = editingEventId
+        ? await supabase.from("events").update(payload).eq("id", editingEventId)
+        : await supabase.from("events").insert(payload);
+      if (result.error) throw new Error(result.error.message);
+    },
+    onSuccess: async () => {
+      setEventForm(emptyEvent);
+      setEditingEventId(null);
+      await queryClient.invalidateQueries({ queryKey: ["admin", "events"] });
+      await queryClient.invalidateQueries({ queryKey: ["events"] });
+      toast.success(editingEventId ? "Event updated" : "Event added");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const removeEvent = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("events").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "events"] });
+      await queryClient.invalidateQueries({ queryKey: ["events"] });
+      toast.success("Event deleted");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const editEvent = (item: Tables<"events">) => {
+    setEditingEventId(item.id);
+    setEventForm({
+      slug: item.slug,
+      title_ar: item.title_ar,
+      title_en: item.title_en,
+      summary_ar: item.summary_ar,
+      summary_en: item.summary_en,
+      description_ar: item.description_ar,
+      description_en: item.description_en,
+      event_date: item.event_date,
+      location: item.location,
+      cover_image: item.cover_image,
+      archived: item.archived,
+    });
+    document.getElementById("event-editor")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const onEventSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    saveEvent.mutate();
+  };
+
+  const uploadAlbumCover = useMutation({
+    mutationFn: (file: File) => uploadImage(file, "gallery"),
+    onSuccess: (url) => {
+      setAlbumForm((current) => ({ ...current, cover_image: url }));
+      toast.success("Image uploaded. Save the album to publish it.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const saveAlbum = useMutation({
+    mutationFn: async () => {
+      const title = String(albumForm.title_en || albumForm.title_ar || "album");
+      const payload = {
+        ...albumForm,
+        slug: slugify(String(albumForm.slug || title)) || `album-${Date.now()}`,
+        sort_order: Number(albumForm.sort_order) || 0,
+      };
+      const result = editingAlbumId
+        ? await supabase.from("albums").update(payload).eq("id", editingAlbumId)
+        : await supabase.from("albums").insert(payload);
+      if (result.error) throw new Error(result.error.message);
+    },
+    onSuccess: async () => {
+      setAlbumForm(emptyAlbum);
+      setEditingAlbumId(null);
+      await queryClient.invalidateQueries({ queryKey: ["admin", "albums"] });
+      await queryClient.invalidateQueries({ queryKey: ["albums"] });
+      toast.success(editingAlbumId ? "Album updated" : "Album added");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const removeAlbum = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("albums").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "albums"] });
+      await queryClient.invalidateQueries({ queryKey: ["albums"] });
+      toast.success("Album deleted");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const editAlbum = (item: Tables<"albums">) => {
+    setEditingAlbumId(item.id);
+    setAlbumForm({
+      slug: item.slug,
+      title_ar: item.title_ar,
+      title_en: item.title_en,
+      description_ar: item.description_ar,
+      description_en: item.description_en,
+      category_id: item.category_id,
+      cover_image: item.cover_image,
+      sort_order: item.sort_order,
+    });
+    document.getElementById("album-editor")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const onAlbumSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    saveAlbum.mutate();
+  };
+
+  const uploadPhoto = useMutation({
+    mutationFn: (file: File) => uploadImage(file, "gallery"),
+    onSuccess: (url) => {
+      setPhotoForm((current) => ({ ...current, media_url: url }));
+      toast.success("Image uploaded. Save to publish it.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const savePhoto = useMutation({
+    mutationFn: async () => {
+      if (!photoForm.media_url) throw new Error("Upload an image first.");
+      const payload = {
+        ...photoForm,
+        sort_order: Number(photoForm.sort_order) || 0,
+      };
+      const result = editingPhotoId
+        ? await supabase.from("gallery").update(payload).eq("id", editingPhotoId)
+        : await supabase.from("gallery").insert(payload);
+      if (result.error) throw new Error(result.error.message);
+    },
+    onSuccess: async () => {
+      setPhotoForm(emptyPhoto);
+      setEditingPhotoId(null);
+      await queryClient.invalidateQueries({ queryKey: ["admin", "gallery"] });
+      await queryClient.invalidateQueries({ queryKey: ["gallery"] });
+      toast.success(editingPhotoId ? "Photo updated" : "Photo added");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const removePhoto = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("gallery").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "gallery"] });
+      await queryClient.invalidateQueries({ queryKey: ["gallery"] });
+      toast.success("Photo deleted");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const editPhoto = (item: Tables<"gallery">) => {
+    setEditingPhotoId(item.id);
+    setPhotoForm({
+      album_id: item.album_id,
+      media_url: item.media_url,
+      media_type: item.media_type,
+      caption_ar: item.caption_ar,
+      caption_en: item.caption_en,
+      sort_order: item.sort_order,
+    });
+    document.getElementById("photo-editor")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const onPhotoSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    savePhoto.mutate();
+  };
+
+  const uploadArchiveFile = useMutation({
+    mutationFn: (file: File) => uploadImage(file, "archive"),
+    onSuccess: (url) => {
+      setArchiveForm((current) => ({ ...current, file_url: url }));
+      toast.success("File uploaded. Save the entry to publish it.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const uploadArchiveThumbnail = useMutation({
+    mutationFn: (file: File) => uploadImage(file, "archive"),
+    onSuccess: (url) => {
+      setArchiveForm((current) => ({ ...current, thumbnail_url: url }));
+      toast.success("Thumbnail uploaded. Save the entry to publish it.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const saveArchiveItem = useMutation({
+    mutationFn: async () => {
+      if (!archiveForm.file_url) throw new Error("Upload a file first.");
+      const title = String(archiveForm.title_en || archiveForm.title_ar || "archive-item");
+      const payload = {
+        ...archiveForm,
+        slug: slugify(String(archiveForm.slug || title)) || `archive-${Date.now()}`,
+      };
+      const result = editingArchiveId
+        ? await supabase.from("archive_items").update(payload).eq("id", editingArchiveId)
+        : await supabase.from("archive_items").insert(payload);
+      if (result.error) throw new Error(result.error.message);
+    },
+    onSuccess: async () => {
+      setArchiveForm(emptyArchiveItem);
+      setEditingArchiveId(null);
+      await queryClient.invalidateQueries({ queryKey: ["admin", "archive_items"] });
+      await queryClient.invalidateQueries({ queryKey: ["archive_items"] });
+      toast.success(editingArchiveId ? "Archive item updated" : "Archive item added");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const removeArchiveItem = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("archive_items").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "archive_items"] });
+      await queryClient.invalidateQueries({ queryKey: ["archive_items"] });
+      toast.success("Archive item deleted");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const editArchiveItem = (item: Tables<"archive_items">) => {
+    setEditingArchiveId(item.id);
+    setArchiveForm({
+      slug: item.slug,
+      kind: item.kind,
+      title_ar: item.title_ar,
+      title_en: item.title_en,
+      description_ar: item.description_ar,
+      description_en: item.description_en,
+      notes_ar: item.notes_ar,
+      notes_en: item.notes_en,
+      file_url: item.file_url,
+      thumbnail_url: item.thumbnail_url,
+      year: item.year,
+      source: item.source,
+      category_id: item.category_id,
+      downloadable: item.downloadable,
+      published: item.published,
+    });
+    document.getElementById("archive-editor")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const onArchiveSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    saveArchiveItem.mutate();
   };
 
   const saveArticle = useMutation({
@@ -1632,6 +2033,722 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
               {!locationsQuery.isLoading && !locationsQuery.data?.length ? (
                 <p className="rounded-sm border border-border bg-card p-5 text-muted-foreground">
                   No map locations yet. Use the editor above to add the first one.
+                </p>
+              ) : null}
+            </div>
+          </section>
+
+          <section
+            id="event-editor"
+            className="mt-12 rounded-sm border border-border bg-card p-5 sm:p-7"
+          >
+            <div className="flex items-center gap-3">
+              <Calendar className="h-5 w-5 text-olive" />
+              <div>
+                <h2 className="font-display text-2xl font-semibold">
+                  {editingEventId ? "تعديل فعالية · Edit event" : "إضافة فعالية · Add event"}
+                </h2>
+              </div>
+            </div>
+            <form onSubmit={onEventSubmit} className="mt-6 grid gap-4 sm:grid-cols-2">
+              <input
+                required
+                className={inputClass}
+                value={eventForm.title_ar}
+                onChange={(event) => setEventForm({ ...eventForm, title_ar: event.target.value })}
+                placeholder="العنوان بالعربية"
+              />
+              <input
+                required
+                className={inputClass}
+                dir="ltr"
+                value={eventForm.title_en}
+                onChange={(event) => setEventForm({ ...eventForm, title_en: event.target.value })}
+                placeholder="Title in English"
+              />
+              <textarea
+                className={`${inputClass} min-h-16`}
+                value={eventForm.summary_ar ?? ""}
+                onChange={(event) => setEventForm({ ...eventForm, summary_ar: event.target.value })}
+                placeholder="ملخص قصير بالعربية (يظهر في القائمة)"
+              />
+              <textarea
+                className={`${inputClass} min-h-16`}
+                dir="ltr"
+                value={eventForm.summary_en ?? ""}
+                onChange={(event) => setEventForm({ ...eventForm, summary_en: event.target.value })}
+                placeholder="Short summary in English (shown in listings)"
+              />
+              <textarea
+                className={`${inputClass} min-h-28`}
+                value={eventForm.description_ar ?? ""}
+                onChange={(event) =>
+                  setEventForm({ ...eventForm, description_ar: event.target.value })
+                }
+                placeholder="الوصف الكامل بالعربية"
+              />
+              <textarea
+                className={`${inputClass} min-h-28`}
+                dir="ltr"
+                value={eventForm.description_en ?? ""}
+                onChange={(event) =>
+                  setEventForm({ ...eventForm, description_en: event.target.value })
+                }
+                placeholder="Full description in English"
+              />
+              <label className="text-sm text-muted-foreground">
+                Event date &amp; time
+                <input
+                  type="datetime-local"
+                  className={`${inputClass} mt-1`}
+                  dir="ltr"
+                  value={eventForm.event_date ? eventForm.event_date.slice(0, 16) : ""}
+                  onChange={(event) =>
+                    setEventForm({
+                      ...eventForm,
+                      event_date: event.target.value
+                        ? new Date(event.target.value).toISOString()
+                        : null,
+                    })
+                  }
+                />
+              </label>
+              <input
+                className={inputClass}
+                value={eventForm.location ?? ""}
+                onChange={(event) => setEventForm({ ...eventForm, location: event.target.value })}
+                placeholder="مكان الفعالية · Location"
+              />
+              <label className="flex items-center gap-2 text-sm text-muted-foreground sm:col-span-2">
+                <input
+                  type="checkbox"
+                  checked={eventForm.archived ?? false}
+                  onChange={(event) =>
+                    setEventForm({ ...eventForm, archived: event.target.checked })
+                  }
+                />
+                مؤرشفة (لا تظهر في القائمة النشطة) · Archived
+              </label>
+              <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                {eventForm.cover_image ? (
+                  <img
+                    src={resolveMediaUrl(eventForm.cover_image)}
+                    alt=""
+                    className="h-16 w-24 rounded-sm border border-border object-cover"
+                  />
+                ) : null}
+                <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm hover:border-accent">
+                  <ImageUp className="h-4 w-4" /> Cover image
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) uploadEventCover.mutate(file);
+                    }}
+                  />
+                </label>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                <Button type="submit" disabled={saveEvent.isPending}>
+                  <Save /> {editingEventId ? "Update" : "Add event"}
+                </Button>
+                {editingEventId ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingEventId(null);
+                      setEventForm(emptyEvent);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                ) : null}
+              </div>
+            </form>
+          </section>
+
+          <section className="mt-12">
+            <h2 className="flex items-center gap-2 text-sm tracking-[0.2em] text-olive uppercase">
+              <Calendar className="h-4 w-4" /> Events · {eventsQuery.data?.length ?? 0}
+            </h2>
+            <div className="mt-4 grid gap-3">
+              {(eventsQuery.data ?? []).map((item) => (
+                <article
+                  key={item.id}
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-sm border border-border bg-card p-5"
+                >
+                  <div className="min-w-0">
+                    <h3 className="font-display text-lg font-semibold">
+                      {item.title_ar} · {item.title_en}
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {item.event_date ? new Date(item.event_date).toLocaleString() : "No date"}
+                      {item.archived ? " · Archived" : ""}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => editEvent(item)}
+                    >
+                      <Pencil /> Edit
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        if (window.confirm("Delete this event permanently?"))
+                          removeEvent.mutate(item.id);
+                      }}
+                    >
+                      <Trash2 /> Delete
+                    </Button>
+                  </div>
+                </article>
+              ))}
+              {!eventsQuery.isLoading && !eventsQuery.data?.length ? (
+                <p className="rounded-sm border border-border bg-card p-5 text-muted-foreground">
+                  No events yet. Use the editor above to add the first one.
+                </p>
+              ) : null}
+            </div>
+          </section>
+
+          <section
+            id="album-editor"
+            className="mt-12 rounded-sm border border-border bg-card p-5 sm:p-7"
+          >
+            <div className="flex items-center gap-3">
+              <Images className="h-5 w-5 text-olive" />
+              <div>
+                <h2 className="font-display text-2xl font-semibold">
+                  {editingAlbumId ? "تعديل ألبوم · Edit album" : "إضافة ألبوم · Add album"}
+                </h2>
+              </div>
+            </div>
+            <form onSubmit={onAlbumSubmit} className="mt-6 grid gap-4 sm:grid-cols-2">
+              <input
+                required
+                className={inputClass}
+                value={albumForm.title_ar}
+                onChange={(event) => setAlbumForm({ ...albumForm, title_ar: event.target.value })}
+                placeholder="عنوان الألبوم بالعربية"
+              />
+              <input
+                required
+                className={inputClass}
+                dir="ltr"
+                value={albumForm.title_en}
+                onChange={(event) => setAlbumForm({ ...albumForm, title_en: event.target.value })}
+                placeholder="Album title in English"
+              />
+              <textarea
+                className={`${inputClass} min-h-16`}
+                value={albumForm.description_ar ?? ""}
+                onChange={(event) =>
+                  setAlbumForm({ ...albumForm, description_ar: event.target.value })
+                }
+                placeholder="وصف مختصر بالعربية"
+              />
+              <textarea
+                className={`${inputClass} min-h-16`}
+                dir="ltr"
+                value={albumForm.description_en ?? ""}
+                onChange={(event) =>
+                  setAlbumForm({ ...albumForm, description_en: event.target.value })
+                }
+                placeholder="Short description in English"
+              />
+              <select
+                className={inputClass}
+                value={albumForm.category_id ?? ""}
+                onChange={(event) =>
+                  setAlbumForm({ ...albumForm, category_id: event.target.value || null })
+                }
+              >
+                <option value="">بدون تصنيف · No category</option>
+                {(categoriesQuery.data ?? []).map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name_ar} · {category.name_en}
+                  </option>
+                ))}
+              </select>
+              <div className="flex flex-wrap items-center gap-3">
+                {albumForm.cover_image ? (
+                  <img
+                    src={resolveMediaUrl(albumForm.cover_image)}
+                    alt=""
+                    className="h-16 w-24 rounded-sm border border-border object-cover"
+                  />
+                ) : null}
+                <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm hover:border-accent">
+                  <ImageUp className="h-4 w-4" /> Cover image
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) uploadAlbumCover.mutate(file);
+                    }}
+                  />
+                </label>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                <Button type="submit" disabled={saveAlbum.isPending}>
+                  <Save /> {editingAlbumId ? "Update" : "Add album"}
+                </Button>
+                {editingAlbumId ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingAlbumId(null);
+                      setAlbumForm(emptyAlbum);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                ) : null}
+              </div>
+            </form>
+          </section>
+
+          <section className="mt-12">
+            <h2 className="flex items-center gap-2 text-sm tracking-[0.2em] text-olive uppercase">
+              <Images className="h-4 w-4" /> Albums · {albumsQuery.data?.length ?? 0}
+            </h2>
+            <div className="mt-4 grid gap-3">
+              {(albumsQuery.data ?? []).map((item) => (
+                <article
+                  key={item.id}
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-sm border border-border bg-card p-5"
+                >
+                  <h3 className="min-w-0 font-display text-lg font-semibold">
+                    {item.title_ar} · {item.title_en}
+                  </h3>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => editAlbum(item)}
+                    >
+                      <Pencil /> Edit
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Delete this album permanently? Photos in it will be kept but unassigned.",
+                          )
+                        )
+                          removeAlbum.mutate(item.id);
+                      }}
+                    >
+                      <Trash2 /> Delete
+                    </Button>
+                  </div>
+                </article>
+              ))}
+              {!albumsQuery.isLoading && !albumsQuery.data?.length ? (
+                <p className="rounded-sm border border-border bg-card p-5 text-muted-foreground">
+                  No albums yet. Use the editor above to add the first one.
+                </p>
+              ) : null}
+            </div>
+          </section>
+
+          <section
+            id="photo-editor"
+            className="mt-12 rounded-sm border border-border bg-card p-5 sm:p-7"
+          >
+            <div className="flex items-center gap-3">
+              <Images className="h-5 w-5 text-olive" />
+              <div>
+                <h2 className="font-display text-2xl font-semibold">
+                  {editingPhotoId ? "تعديل صورة · Edit photo" : "إضافة صورة · Add photo"}
+                </h2>
+              </div>
+            </div>
+            <form onSubmit={onPhotoSubmit} className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                {photoForm.media_url ? (
+                  <img
+                    src={resolveMediaUrl(photoForm.media_url)}
+                    alt=""
+                    className="h-20 w-28 rounded-sm border border-border object-cover"
+                  />
+                ) : null}
+                <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm hover:border-accent">
+                  <ImageUp className="h-4 w-4" />{" "}
+                  {photoForm.media_url ? "Replace image" : "Upload image"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) uploadPhoto.mutate(file);
+                    }}
+                  />
+                </label>
+              </div>
+              <select
+                className={inputClass}
+                value={photoForm.album_id ?? ""}
+                onChange={(event) =>
+                  setPhotoForm({ ...photoForm, album_id: event.target.value || null })
+                }
+              >
+                <option value="">بدون ألبوم · No album</option>
+                {(albumsQuery.data ?? []).map((album) => (
+                  <option key={album.id} value={album.id}>
+                    {album.title_ar} · {album.title_en}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="number"
+                className={inputClass}
+                dir="ltr"
+                value={photoForm.sort_order ?? 0}
+                onChange={(event) =>
+                  setPhotoForm({ ...photoForm, sort_order: Number(event.target.value) })
+                }
+                placeholder="Sort order"
+              />
+              <input
+                className={inputClass}
+                value={photoForm.caption_ar ?? ""}
+                onChange={(event) => setPhotoForm({ ...photoForm, caption_ar: event.target.value })}
+                placeholder="وصف الصورة بالعربية"
+              />
+              <input
+                className={inputClass}
+                dir="ltr"
+                value={photoForm.caption_en ?? ""}
+                onChange={(event) => setPhotoForm({ ...photoForm, caption_en: event.target.value })}
+                placeholder="Caption in English"
+              />
+              <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                <Button type="submit" disabled={savePhoto.isPending || uploadPhoto.isPending}>
+                  <Save /> {editingPhotoId ? "Update" : "Add photo"}
+                </Button>
+                {editingPhotoId ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingPhotoId(null);
+                      setPhotoForm(emptyPhoto);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                ) : null}
+              </div>
+            </form>
+          </section>
+
+          <section className="mt-12">
+            <h2 className="flex items-center gap-2 text-sm tracking-[0.2em] text-olive uppercase">
+              <Images className="h-4 w-4" /> Photos · {photosQuery.data?.length ?? 0}
+            </h2>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {(photosQuery.data ?? []).map((item) => (
+                <article
+                  key={item.id}
+                  className="overflow-hidden rounded-sm border border-border bg-card"
+                >
+                  <img
+                    src={resolveMediaUrl(item.media_url)}
+                    alt=""
+                    className="h-32 w-full object-cover"
+                  />
+                  <div className="flex items-center justify-between gap-2 p-2">
+                    <p className="min-w-0 truncate text-xs text-muted-foreground">
+                      {item.caption_ar || item.caption_en || "—"}
+                    </p>
+                    <div className="flex shrink-0 gap-1">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => editPhoto(item)}
+                      >
+                        <Pencil />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => {
+                          if (window.confirm("Delete this photo permanently?"))
+                            removePhoto.mutate(item.id);
+                        }}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+              {!photosQuery.isLoading && !photosQuery.data?.length ? (
+                <p className="col-span-full rounded-sm border border-border bg-card p-5 text-muted-foreground">
+                  No photos yet. Use the editor above to add the first one.
+                </p>
+              ) : null}
+            </div>
+          </section>
+
+          <section
+            id="archive-editor"
+            className="mt-12 rounded-sm border border-border bg-card p-5 sm:p-7"
+          >
+            <div className="flex items-center gap-3">
+              <Archive className="h-5 w-5 text-olive" />
+              <div>
+                <h2 className="font-display text-2xl font-semibold">
+                  {editingArchiveId
+                    ? "تعديل عنصر أرشيف · Edit archive item"
+                    : "إضافة عنصر أرشيف · Add archive item"}
+                </h2>
+              </div>
+            </div>
+            <form onSubmit={onArchiveSubmit} className="mt-6 grid gap-4 sm:grid-cols-2">
+              <input
+                required
+                className={inputClass}
+                value={archiveForm.title_ar}
+                onChange={(event) =>
+                  setArchiveForm({ ...archiveForm, title_ar: event.target.value })
+                }
+                placeholder="العنوان بالعربية"
+              />
+              <input
+                required
+                className={inputClass}
+                dir="ltr"
+                value={archiveForm.title_en}
+                onChange={(event) =>
+                  setArchiveForm({ ...archiveForm, title_en: event.target.value })
+                }
+                placeholder="Title in English"
+              />
+              <textarea
+                className={`${inputClass} min-h-16`}
+                value={archiveForm.description_ar ?? ""}
+                onChange={(event) =>
+                  setArchiveForm({ ...archiveForm, description_ar: event.target.value })
+                }
+                placeholder="وصف مختصر بالعربية"
+              />
+              <textarea
+                className={`${inputClass} min-h-16`}
+                dir="ltr"
+                value={archiveForm.description_en ?? ""}
+                onChange={(event) =>
+                  setArchiveForm({ ...archiveForm, description_en: event.target.value })
+                }
+                placeholder="Short description in English"
+              />
+              <textarea
+                className={`${inputClass} min-h-16`}
+                value={archiveForm.notes_ar ?? ""}
+                onChange={(event) =>
+                  setArchiveForm({ ...archiveForm, notes_ar: event.target.value })
+                }
+                placeholder="ملاحظات إضافية بالعربية"
+              />
+              <textarea
+                className={`${inputClass} min-h-16`}
+                dir="ltr"
+                value={archiveForm.notes_en ?? ""}
+                onChange={(event) =>
+                  setArchiveForm({ ...archiveForm, notes_en: event.target.value })
+                }
+                placeholder="Additional notes in English"
+              />
+              <select
+                className={inputClass}
+                value={String(archiveForm.kind ?? "document")}
+                onChange={(event) => setArchiveForm({ ...archiveForm, kind: event.target.value })}
+              >
+                <option value="document">وثيقة · Document</option>
+                <option value="photo">صورة · Photo</option>
+                <option value="audio">صوت · Audio</option>
+                <option value="video">فيديو · Video</option>
+                <option value="map">خريطة · Map</option>
+              </select>
+              <select
+                className={inputClass}
+                value={archiveForm.category_id ?? ""}
+                onChange={(event) =>
+                  setArchiveForm({ ...archiveForm, category_id: event.target.value || null })
+                }
+              >
+                <option value="">بدون تصنيف · No category</option>
+                {(categoriesQuery.data ?? []).map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name_ar} · {category.name_en}
+                  </option>
+                ))}
+              </select>
+              <input
+                className={inputClass}
+                dir="ltr"
+                value={archiveForm.year ?? ""}
+                onChange={(event) => setArchiveForm({ ...archiveForm, year: event.target.value })}
+                placeholder="السنة · Year"
+              />
+              <input
+                className={inputClass}
+                value={archiveForm.source ?? ""}
+                onChange={(event) => setArchiveForm({ ...archiveForm, source: event.target.value })}
+                placeholder="المصدر · Source"
+              />
+              <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={archiveForm.downloadable ?? true}
+                  onChange={(event) =>
+                    setArchiveForm({ ...archiveForm, downloadable: event.target.checked })
+                  }
+                />
+                قابل للتحميل · Downloadable
+              </label>
+              <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={archiveForm.published ?? true}
+                  onChange={(event) =>
+                    setArchiveForm({ ...archiveForm, published: event.target.checked })
+                  }
+                />
+                منشور · Published
+              </label>
+              <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                {archiveForm.file_url ? (
+                  <a
+                    href={resolveMediaUrl(archiveForm.file_url)}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="text-sm break-all text-olive hover:underline"
+                  >
+                    {archiveForm.file_url}
+                  </a>
+                ) : null}
+                <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm hover:border-accent">
+                  <ImageUp className="h-4 w-4" />{" "}
+                  {archiveForm.file_url ? "Replace file" : "Upload file (required)"}
+                  <input
+                    type="file"
+                    className="sr-only"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) uploadArchiveFile.mutate(file);
+                    }}
+                  />
+                </label>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                {archiveForm.thumbnail_url ? (
+                  <img
+                    src={resolveMediaUrl(archiveForm.thumbnail_url)}
+                    alt=""
+                    className="h-16 w-16 rounded-sm border border-border object-cover"
+                  />
+                ) : null}
+                <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm hover:border-accent">
+                  <ImageUp className="h-4 w-4" /> Thumbnail (optional)
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) uploadArchiveThumbnail.mutate(file);
+                    }}
+                  />
+                </label>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                <Button
+                  type="submit"
+                  disabled={saveArchiveItem.isPending || uploadArchiveFile.isPending}
+                >
+                  <Save /> {editingArchiveId ? "Update" : "Add archive item"}
+                </Button>
+                {editingArchiveId ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingArchiveId(null);
+                      setArchiveForm(emptyArchiveItem);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                ) : null}
+              </div>
+            </form>
+          </section>
+
+          <section className="mt-12">
+            <h2 className="flex items-center gap-2 text-sm tracking-[0.2em] text-olive uppercase">
+              <Archive className="h-4 w-4" /> Archive items · {archiveItemsQuery.data?.length ?? 0}
+            </h2>
+            <div className="mt-4 grid gap-3">
+              {(archiveItemsQuery.data ?? []).map((item) => (
+                <article
+                  key={item.id}
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-sm border border-border bg-card p-5"
+                >
+                  <div className="min-w-0">
+                    <h3 className="font-display text-lg font-semibold">
+                      {item.title_ar} · {item.title_en}
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {item.kind} · {item.published ? "Published" : "Hidden"}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => editArchiveItem(item)}
+                    >
+                      <Pencil /> Edit
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        if (window.confirm("Delete this archive item permanently?"))
+                          removeArchiveItem.mutate(item.id);
+                      }}
+                    >
+                      <Trash2 /> Delete
+                    </Button>
+                  </div>
+                </article>
+              ))}
+              {!archiveItemsQuery.isLoading && !archiveItemsQuery.data?.length ? (
+                <p className="rounded-sm border border-border bg-card p-5 text-muted-foreground">
+                  No archive items yet. Use the editor above to add the first one.
                 </p>
               ) : null}
             </div>
