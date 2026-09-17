@@ -108,6 +108,14 @@ const emptyArchiveItem: TablesInsert<"archive_items"> = {
   published: true,
 };
 
+const emptyHistoryItem: TablesInsert<"history"> = {
+  title_ar: "",
+  title_en: "",
+  content_ar: "",
+  content_en: "",
+  sort_order: 0,
+};
+
 function slugify(value: string) {
   return value
     .trim()
@@ -209,6 +217,8 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
   const [editingPhotoId, setEditingPhotoId] = useState<string | null>(null);
   const [archiveForm, setArchiveForm] = useState<TablesInsert<"archive_items">>(emptyArchiveItem);
   const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
+  const [historyItemForm, setHistoryItemForm] = useState<TablesInsert<"history">>(emptyHistoryItem);
+  const [editingHistoryItemId, setEditingHistoryItemId] = useState<string | null>(null);
 
   // Uploads store a bare storage path (e.g. "site/uuid.jpg"), not a
   // directly-loadable URL — resolve each preview thumbnail the same way
@@ -359,6 +369,19 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
         .from("archive_items")
         .select("*")
         .order("created_at", { ascending: false });
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  });
+
+  const historyItemsQuery = useQuery({
+    queryKey: ["admin", "history_items"],
+    enabled: canEditContent,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("history")
+        .select("*")
+        .order("sort_order", { ascending: true });
       if (error) throw new Error(error.message);
       return data;
     },
@@ -957,6 +980,57 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
   const onArchiveSubmit = (event: FormEvent) => {
     event.preventDefault();
     saveArchiveItem.mutate();
+  };
+
+  const saveHistoryItem = useMutation({
+    mutationFn: async () => {
+      const payload = {
+        ...historyItemForm,
+        sort_order: Number(historyItemForm.sort_order) || 0,
+      };
+      const result = editingHistoryItemId
+        ? await supabase.from("history").update(payload).eq("id", editingHistoryItemId)
+        : await supabase.from("history").insert(payload);
+      if (result.error) throw new Error(result.error.message);
+    },
+    onSuccess: async () => {
+      setHistoryItemForm(emptyHistoryItem);
+      setEditingHistoryItemId(null);
+      await queryClient.invalidateQueries({ queryKey: ["admin", "history_items"] });
+      await queryClient.invalidateQueries({ queryKey: ["history"] });
+      toast.success(editingHistoryItemId ? "History entry updated" : "History entry added");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const removeHistoryItem = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("history").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "history_items"] });
+      await queryClient.invalidateQueries({ queryKey: ["history"] });
+      toast.success("History entry deleted");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const editHistoryItem = (item: Tables<"history">) => {
+    setEditingHistoryItemId(item.id);
+    setHistoryItemForm({
+      title_ar: item.title_ar,
+      title_en: item.title_en,
+      content_ar: item.content_ar,
+      content_en: item.content_en,
+      sort_order: item.sort_order,
+    });
+    document.getElementById("history-item-editor")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const onHistoryItemSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    saveHistoryItem.mutate();
   };
 
   const saveArticle = useMutation({
@@ -2749,6 +2823,147 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
               {!archiveItemsQuery.isLoading && !archiveItemsQuery.data?.length ? (
                 <p className="rounded-sm border border-border bg-card p-5 text-muted-foreground">
                   No archive items yet. Use the editor above to add the first one.
+                </p>
+              ) : null}
+            </div>
+          </section>
+
+          <section
+            id="history-item-editor"
+            className="mt-12 rounded-sm border border-border bg-card p-5 sm:p-7"
+          >
+            <div className="flex items-center gap-3">
+              <Newspaper className="h-5 w-5 text-olive" />
+              <div>
+                <h2 className="font-display text-2xl font-semibold">
+                  {editingHistoryItemId
+                    ? "تعديل محطة تاريخية · Edit history entry"
+                    : "إضافة محطة تاريخية · Add history entry"}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  One bullet point in the history timeline (e.g. &quot;Origins and setting&quot;,
+                  &quot;Stone houses and arches&quot;). The heading/intro/image above the timeline
+                  are managed separately in &quot;History section intro&quot;, above.
+                </p>
+              </div>
+            </div>
+            <form onSubmit={onHistoryItemSubmit} className="mt-6 grid gap-4 sm:grid-cols-2">
+              <input
+                required
+                className={inputClass}
+                value={historyItemForm.title_ar}
+                onChange={(event) =>
+                  setHistoryItemForm({ ...historyItemForm, title_ar: event.target.value })
+                }
+                placeholder="العنوان بالعربية"
+              />
+              <input
+                required
+                className={inputClass}
+                dir="ltr"
+                value={historyItemForm.title_en}
+                onChange={(event) =>
+                  setHistoryItemForm({ ...historyItemForm, title_en: event.target.value })
+                }
+                placeholder="Title in English"
+              />
+              <textarea
+                className={`${inputClass} min-h-20`}
+                value={historyItemForm.content_ar}
+                onChange={(event) =>
+                  setHistoryItemForm({ ...historyItemForm, content_ar: event.target.value })
+                }
+                placeholder="النص بالعربية"
+              />
+              <textarea
+                className={`${inputClass} min-h-20`}
+                dir="ltr"
+                value={historyItemForm.content_en}
+                onChange={(event) =>
+                  setHistoryItemForm({ ...historyItemForm, content_en: event.target.value })
+                }
+                placeholder="Text in English"
+              />
+              <label className="text-sm text-muted-foreground">
+                Sort order (lower shows first)
+                <input
+                  type="number"
+                  className={`${inputClass} mt-1`}
+                  dir="ltr"
+                  value={historyItemForm.sort_order ?? 0}
+                  onChange={(event) =>
+                    setHistoryItemForm({
+                      ...historyItemForm,
+                      sort_order: Number(event.target.value),
+                    })
+                  }
+                />
+              </label>
+              <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                <Button type="submit" disabled={saveHistoryItem.isPending}>
+                  <Save /> {editingHistoryItemId ? "Update" : "Add entry"}
+                </Button>
+                {editingHistoryItemId ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingHistoryItemId(null);
+                      setHistoryItemForm(emptyHistoryItem);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                ) : null}
+              </div>
+            </form>
+          </section>
+
+          <section className="mt-12">
+            <h2 className="flex items-center gap-2 text-sm tracking-[0.2em] text-olive uppercase">
+              <Newspaper className="h-4 w-4" /> History timeline ·{" "}
+              {historyItemsQuery.data?.length ?? 0}
+            </h2>
+            <div className="mt-4 grid gap-3">
+              {(historyItemsQuery.data ?? []).map((item) => (
+                <article
+                  key={item.id}
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-sm border border-border bg-card p-5"
+                >
+                  <div className="min-w-0">
+                    <h3 className="font-display text-lg font-semibold">
+                      {item.title_ar} · {item.title_en}
+                    </h3>
+                    <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+                      {item.content_ar}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => editHistoryItem(item)}
+                    >
+                      <Pencil /> Edit
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        if (window.confirm("Delete this history entry permanently?"))
+                          removeHistoryItem.mutate(item.id);
+                      }}
+                    >
+                      <Trash2 /> Delete
+                    </Button>
+                  </div>
+                </article>
+              ))}
+              {!historyItemsQuery.isLoading && !historyItemsQuery.data?.length ? (
+                <p className="rounded-sm border border-border bg-card p-5 text-muted-foreground">
+                  No history entries yet. Use the editor above to add the first one.
                 </p>
               ) : null}
             </div>
