@@ -1151,6 +1151,7 @@ export type Database = {
           id: string;
           instagram: string | null;
           logo: string | null;
+          map_background_image: string | null;
           location_altitude_ar: string | null;
           location_altitude_en: string | null;
           location_district_ar: string | null;
@@ -1178,6 +1179,7 @@ export type Database = {
           id?: string;
           instagram?: string | null;
           logo?: string | null;
+          map_background_image?: string | null;
           location_altitude_ar?: string | null;
           location_altitude_en?: string | null;
           location_district_ar?: string | null;
@@ -1205,6 +1207,7 @@ export type Database = {
           id?: string;
           instagram?: string | null;
           logo?: string | null;
+          map_background_image?: string | null;
           location_altitude_ar?: string | null;
           location_altitude_en?: string | null;
           location_district_ar?: string | null;

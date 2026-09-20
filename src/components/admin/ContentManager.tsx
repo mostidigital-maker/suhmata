@@ -19,6 +19,7 @@ import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase
 import { Button } from "@/components/ui/button";
 import { useMediaSrc } from "@/hooks/useMediaSrc";
 import { resolveMediaUrl } from "@/lib/media";
+import { MARKER_KINDS } from "@/lib/mapMarkerKinds";
 
 type Article = Tables<"articles">;
 type Hero = Tables<"hero_content">;
@@ -198,6 +199,7 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
     google_maps: "",
     waze: "",
     map_embed_url: "",
+    map_background_image: "",
     location_district_ar: "",
     location_district_en: "",
     location_altitude_ar: "",
@@ -461,6 +463,7 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
       google_maps: settings.google_maps ?? "",
       waze: settings.waze ?? "",
       map_embed_url: settings.map_embed_url ?? "",
+      map_background_image: settings.map_background_image ?? "",
       location_district_ar: settings.location_district_ar ?? "",
       location_district_en: settings.location_district_en ?? "",
       location_altitude_ar: settings.location_altitude_ar ?? "",
@@ -510,6 +513,15 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
     onSuccess: (url) => {
       setSettingsForm((current) => ({ ...current, logo: url }));
       toast.success("Logo uploaded. Save settings to publish it.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const uploadMapBackground = useMutation({
+    mutationFn: (file: File) => uploadImage(file, "site"),
+    onSuccess: (url) => {
+      setSettingsForm((current) => ({ ...current, map_background_image: url }));
+      toast.success("Map image uploaded. Save settings to publish it.");
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -620,6 +632,7 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
         google_maps: settingsForm.google_maps || null,
         waze: settingsForm.waze || null,
         map_embed_url: settingsForm.map_embed_url || null,
+        map_background_image: settingsForm.map_background_image || null,
         location_district_ar: settingsForm.location_district_ar || null,
         location_district_en: settingsForm.location_district_en || null,
         location_altitude_ar: settingsForm.location_altitude_ar || null,
@@ -1369,6 +1382,38 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
                 }
                 placeholder='Google Maps embed URL (Google Maps → Share → Embed a map → copy the src="..." part)'
               />
+              <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
+                <div>
+                  <p className="text-sm font-medium">
+                    صورة خريطة القرية التفاعلية · Interactive map image
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    The image markers are placed on at /map — replace it with a real map or
+                    illustration of the village, then position each landmark below in &quot;Map
+                    locations&quot;.
+                  </p>
+                </div>
+                {settingsForm.map_background_image ? (
+                  <img
+                    src={resolveMediaUrl(settingsForm.map_background_image)}
+                    alt=""
+                    className="h-16 w-28 rounded-sm border border-border object-cover"
+                  />
+                ) : null}
+                <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm hover:border-accent">
+                  <ImageUp className="h-4 w-4" />{" "}
+                  {settingsForm.map_background_image ? "Replace image" : "Upload image"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) uploadMapBackground.mutate(file);
+                    }}
+                  />
+                </label>
+              </div>
               <input
                 className={inputClass}
                 value={settingsForm.location_district_ar}
@@ -1439,7 +1484,10 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
               />
             </div>
             <div className="mt-4">
-              <Button onClick={() => saveSettings.mutate()} disabled={saveSettings.isPending}>
+              <Button
+                onClick={() => saveSettings.mutate()}
+                disabled={saveSettings.isPending || uploadMapBackground.isPending}
+              >
                 <Save /> Save location section
               </Button>
             </div>
@@ -1999,12 +2047,11 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
                 value={String(locationForm.kind ?? "landmark")}
                 onChange={(event) => setLocationForm({ ...locationForm, kind: event.target.value })}
               >
-                <option value="landmark">معلم · Landmark</option>
-                <option value="family_home">بيت عائلة · Family home</option>
-                <option value="mosque">مسجد · Mosque</option>
-                <option value="school">مدرسة · School</option>
-                <option value="cemetery">مقبرة · Cemetery</option>
-                <option value="well">بئر · Well</option>
+                {MARKER_KINDS.map((k) => (
+                  <option key={k.value} value={k.value}>
+                    {k.labelAr} · {k.labelEn}
+                  </option>
+                ))}
               </select>
               <input
                 className={inputClass}

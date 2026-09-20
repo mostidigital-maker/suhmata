@@ -10,6 +10,7 @@ import { mapPage, ui } from "@/i18n/pages";
 import { PageShell } from "@/components/site/PageShell";
 import { SectionShell } from "@/components/site/SectionShell";
 import { cn } from "@/lib/utils";
+import { getMarkerIcon } from "@/lib/mapMarkerKinds";
 import villageMap from "@/assets/village-map.jpg";
 
 const title = "خريطة القرية التفاعلية | Interactive village map";
@@ -65,6 +66,8 @@ function MapPage() {
   const { t } = useLanguage();
   const field = useLocalizedField();
   const { data: locations = [], isLoading } = useQuery(contentQueries.mapLocations());
+  const { data: settings } = useQuery(contentQueries.settings());
+  const mapBackground = useMediaSrc(settings?.map_background_image, villageMap) ?? villageMap;
   const [activeId, setActiveId] = useState<string | null>(null);
   const active: MapLocation | undefined = locations.find((l) => l.id === activeId) ?? locations[0];
 
@@ -82,28 +85,33 @@ function MapPage() {
         <div className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
           <div className="sepia-frame relative overflow-hidden rounded-sm">
             <img
-              src={villageMap}
+              src={mapBackground}
               alt={t(mapPage.title)}
               className="w-full object-cover"
               loading="lazy"
               decoding="async"
             />
-            {locations.map((loc) => (
-              <button
-                key={loc.id}
-                type="button"
-                onClick={() => setActiveId(loc.id)}
-                aria-pressed={active?.id === loc.id}
-                aria-label={field(loc, "name")}
-                style={{ left: `${loc.pos_x}%`, top: `${loc.pos_y}%` }}
-                className={cn(
-                  "absolute h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow-md transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-                  active?.id === loc.id
-                    ? "scale-125 border-background bg-accent"
-                    : "border-background bg-olive hover:scale-110",
-                )}
-              />
-            ))}
+            {locations.map((loc) => {
+              const MarkerIcon = getMarkerIcon(loc.kind);
+              return (
+                <button
+                  key={loc.id}
+                  type="button"
+                  onClick={() => setActiveId(loc.id)}
+                  aria-pressed={active?.id === loc.id}
+                  aria-label={field(loc, "name")}
+                  style={{ left: `${loc.pos_x}%`, top: `${loc.pos_y}%` }}
+                  className={cn(
+                    "absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 shadow-md transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                    active?.id === loc.id
+                      ? "scale-125 border-background bg-accent text-accent-foreground"
+                      : "border-background bg-olive text-primary-foreground hover:scale-110",
+                  )}
+                >
+                  <MarkerIcon className="h-4 w-4" aria-hidden />
+                </button>
+              );
+            })}
           </div>
 
           <div>
@@ -111,22 +119,26 @@ function MapPage() {
               {t(mapPage.landmarks)}
             </h2>
             <ul className="mt-4 flex flex-wrap gap-2">
-              {locations.map((loc) => (
-                <li key={loc.id}>
-                  <button
-                    type="button"
-                    onClick={() => setActiveId(loc.id)}
-                    className={cn(
-                      "min-h-11 rounded-full border px-4 py-2 text-sm transition-colors",
-                      active?.id === loc.id
-                        ? "border-accent bg-accent/15 text-olive"
-                        : "border-border text-muted-foreground hover:border-accent",
-                    )}
-                  >
-                    {field(loc, "name")}
-                  </button>
-                </li>
-              ))}
+              {locations.map((loc) => {
+                const MarkerIcon = getMarkerIcon(loc.kind);
+                return (
+                  <li key={loc.id}>
+                    <button
+                      type="button"
+                      onClick={() => setActiveId(loc.id)}
+                      className={cn(
+                        "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors",
+                        active?.id === loc.id
+                          ? "border-accent bg-accent/15 text-olive"
+                          : "border-border text-muted-foreground hover:border-accent",
+                      )}
+                    >
+                      <MarkerIcon className="h-4 w-4 shrink-0" aria-hidden />
+                      {field(loc, "name")}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
 
             {active ? (
