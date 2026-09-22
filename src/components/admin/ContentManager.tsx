@@ -17,6 +17,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
+import { inputClass, slugify, uploadImage, uploadFile } from "./adminFormUtils";
 import { useMediaSrc } from "@/hooks/useMediaSrc";
 import { resolveMediaUrl } from "@/lib/media";
 import { MARKER_KINDS } from "@/lib/mapMarkerKinds";
@@ -24,9 +25,6 @@ import { MARKER_KINDS } from "@/lib/mapMarkerKinds";
 type Article = Tables<"articles">;
 type Hero = Tables<"hero_content">;
 type MapLocation = Tables<"map_locations">;
-
-const inputClass =
-  "min-h-11 w-full rounded-sm border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-accent focus:ring-1 focus:ring-ring";
 
 const emptyArticle: TablesInsert<"articles"> = {
   title_ar: "",
@@ -116,27 +114,6 @@ const emptyHistoryItem: TablesInsert<"history"> = {
   content_en: "",
   sort_order: 0,
 };
-
-function slugify(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9\u0600-\u06ff]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-async function uploadImage(file: File, folder: string) {
-  if (!file.type.startsWith("image/")) throw new Error("Please select an image file.");
-  if (file.size > 8 * 1024 * 1024) throw new Error("Image must be smaller than 8 MB.");
-  const extension = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const path = `${folder}/${crypto.randomUUID()}.${extension}`;
-  const { error } = await supabase.storage.from("media").upload(path, file, {
-    cacheControl: "3600",
-    upsert: false,
-  });
-  if (error) throw new Error(error.message);
-  return path;
-}
 
 type ContentManagerProps = {
   /** Site identity + settings (logo, background, name, rights, contact) — super_admin only. */
@@ -915,7 +892,7 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
   };
 
   const uploadArchiveFile = useMutation({
-    mutationFn: (file: File) => uploadImage(file, "archive"),
+    mutationFn: (file: File) => uploadFile(file, "archive"),
     onSuccess: (url) => {
       setArchiveForm((current) => ({ ...current, file_url: url }));
       toast.success("File uploaded. Save the entry to publish it.");

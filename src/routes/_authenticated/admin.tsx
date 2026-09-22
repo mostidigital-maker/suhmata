@@ -4,6 +4,7 @@ import { Toaster, toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/services/auth";
 import { ContentManager } from "@/components/admin/ContentManager";
+import { HeritageManager } from "@/components/admin/HeritageManager";
 import { UserRoles } from "@/components/admin/UserRoles";
 
 const title = "لوحة الإدارة | Archive dashboard";
@@ -195,7 +196,10 @@ function AdminPage() {
 
         {isSuperAdmin ? <UserRoles /> : null}
         {isAdminOrAbove ? (
-          <ContentManager canEditIdentity={isSuperAdmin} canEditContent={isAdminOrAbove} />
+          <>
+            <ContentManager canEditIdentity={isSuperAdmin} canEditContent={isAdminOrAbove} />
+            <HeritageManager canEditContent={isAdminOrAbove} />
+          </>
         ) : null}
         <section className="mt-12">
           <h2 className="text-sm tracking-[0.25em] text-olive uppercase">
