@@ -24,6 +24,17 @@ export const mainNav: NavItem[] = [
   { id: "contribute", to: "/contribute", label: { ar: "شارك", en: "Contribute" } },
 ];
 
+/**
+ * Secondary pages, grouped under a "More" menu in the header instead of
+ * the main row so the primary nav doesn't get crowded. Still listed
+ * inline in the mobile menu, where there's room to scroll.
+ */
+export const heritageNav: NavItem[] = [
+  { id: "family-tree", to: "/family-tree", label: { ar: "شجرة العائلة", en: "Family tree" } },
+  { id: "memorials", to: "/memorials", label: { ar: "ذكراهم", en: "In memoriam" } },
+  { id: "donate", to: "/donate", label: { ar: "تبرّع", en: "Donate" } },
+];
+
 export const videosPage = {
   eyebrow: { ar: "فيديوهات الزوار", en: "Visitor videos" },
   title: { ar: "ذاكرة مصوّرة من الزوار", en: "Filmed memories from visitors" },
@@ -44,7 +55,6 @@ export const locationActions = {
   instagram: { ar: "إنستغرام", en: "Instagram" },
   whatsapp: { ar: "مجموعة واتساب", en: "WhatsApp Community" },
 } satisfies Record<string, LocalizedText>;
-
 
 export const ui = {
   loading: { ar: "جارٍ التحميل…", en: "Loading…" },

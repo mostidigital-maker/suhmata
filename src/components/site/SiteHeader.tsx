@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { site } from "@/i18n/translations";
-import { mainNav } from "@/i18n/pages";
+import { mainNav, heritageNav } from "@/i18n/pages";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import logoFallback from "@/assets/site-logo.jpg";
 import { contentQueries } from "@/services/queries";
 import { useFallbackImage } from "@/hooks/useFallbackImage";
 import { useMediaSrc } from "@/hooks/useMediaSrc";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function SiteHeader() {
   const { lang, t } = useLanguage();
@@ -81,6 +87,26 @@ export function SiteHeader() {
               {item.label[lang]}
             </Link>
           ))}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={cn(
+                "flex items-center gap-1 text-sm transition-colors duration-300 hover:text-accent focus:outline-none",
+                solid ? "text-foreground/80" : "text-parchment/85",
+              )}
+            >
+              {t(site.more)}
+              <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {heritageNav.map((item) => (
+                <DropdownMenuItem key={item.id} asChild>
+                  <Link to={item.to as "/"} className="cursor-pointer">
+                    {item.label[lang]}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
 
         <div className="flex items-center gap-2 justify-self-end">
@@ -108,6 +134,20 @@ export function SiteHeader() {
                 <Link
                   to={item.to as "/"}
                   hash={item.hash}
+                  onClick={() => setOpen(false)}
+                  className="block min-h-11 py-3.5 text-sm text-foreground/85 transition-colors hover:text-accent"
+                >
+                  {item.label[lang]}
+                </Link>
+              </li>
+            ))}
+            <li className="pt-3 pb-1 text-xs tracking-[0.2em] text-muted-foreground uppercase">
+              {t(site.more)}
+            </li>
+            {heritageNav.map((item) => (
+              <li key={item.id} className="border-b border-border/50 last:border-0">
+                <Link
+                  to={item.to as "/"}
                   onClick={() => setOpen(false)}
                   className="block min-h-11 py-3.5 text-sm text-foreground/85 transition-colors hover:text-accent"
                 >

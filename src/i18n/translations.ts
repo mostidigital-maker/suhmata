@@ -31,6 +31,7 @@ export const site = {
   scrollHint: { ar: "انزل للأسفل", en: "Scroll" },
   langLabel: { ar: "اللغة", en: "Language" },
   menu: { ar: "القائمة", en: "Menu" },
+  more: { ar: "المزيد", en: "More" },
   viewAll: { ar: "عرض الكل", en: "View all" },
   placeholderBadge: { ar: "محتوى مؤقت", en: "Placeholder" },
 } satisfies Record<string, LocalizedText>;
@@ -216,10 +217,19 @@ export const sections = {
       en: "An interactive map of the village site, its land boundaries and neighbouring villages will be displayed here, referenced against historical maps.",
     },
     facts: [
-      { label: { ar: "القضاء", en: "District" }, value: { ar: "[اسم القضاء]", en: "[District name]" } },
+      {
+        label: { ar: "القضاء", en: "District" },
+        value: { ar: "[اسم القضاء]", en: "[District name]" },
+      },
       { label: { ar: "الارتفاع", en: "Elevation" }, value: { ar: "[--- م]", en: "[--- m]" } },
-      { label: { ar: "مساحة الأرض", en: "Land area" }, value: { ar: "[--- دونم]", en: "[--- dunams]" } },
-      { label: { ar: "عدد السكان ١٩٤٥", en: "Population 1945" }, value: { ar: "[---]", en: "[---]" } },
+      {
+        label: { ar: "مساحة الأرض", en: "Land area" },
+        value: { ar: "[--- دونم]", en: "[--- dunams]" },
+      },
+      {
+        label: { ar: "عدد السكان ١٩٤٥", en: "Population 1945" },
+        value: { ar: "[---]", en: "[---]" },
+      },
     ],
     mapNote: {
       ar: "معاينة خريطة تاريخية — ستُربط بخريطة تفاعلية لاحقاً.",
