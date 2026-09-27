@@ -73,7 +73,7 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-6 lg:flex">
+        <nav className="hidden shrink-0 items-center gap-5 lg:flex xl:gap-6">
           {mainNav.map((item) => (
             <Link
               key={item.id}
