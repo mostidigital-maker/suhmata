@@ -32,6 +32,7 @@ export const site = {
   langLabel: { ar: "اللغة", en: "Language" },
   menu: { ar: "القائمة", en: "Menu" },
   more: { ar: "المزيد", en: "More" },
+  headerTagline: { ar: "فلسطين · قبل ١٩٤٨", en: "Palestine · before 1948" },
   viewAll: { ar: "عرض الكل", en: "View all" },
   placeholderBadge: { ar: "محتوى مؤقت", en: "Placeholder" },
 } satisfies Record<string, LocalizedText>;

@@ -48,8 +48,12 @@ export function SiteHeader() {
           : "border-b border-transparent",
       )}
     >
-      <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-3 sm:px-8 lg:flex lg:justify-between">
-        <Link to="/" hash="top" className="flex min-w-0 items-center gap-3">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 sm:px-8">
+        <Link
+          to="/"
+          hash="top"
+          className="group flex shrink-0 items-center gap-3"
+        >
           <img
             src={logo.src}
             onError={logo.onError}
@@ -57,18 +61,32 @@ export function SiteHeader() {
             width={329}
             height={128}
             className={cn(
-              "h-9 w-auto shrink-0 object-contain transition-opacity duration-500 sm:h-10",
+              "h-9 w-auto shrink-0 object-contain transition-opacity duration-500 sm:h-10 lg:h-11",
               solid ? "opacity-100" : "opacity-95",
             )}
           />
-          <span className="min-w-0">
+          <span
+            aria-hidden
+            className="hidden h-9 w-px shrink-0 bg-gradient-to-b from-transparent via-gold/70 to-transparent sm:block"
+          />
+          <span className="flex min-w-0 flex-col justify-center gap-0.5">
             <span
               className={cn(
-                "block truncate font-display text-base leading-tight font-semibold sm:text-lg",
-                solid ? "text-foreground" : "text-parchment",
+                "block truncate font-display text-lg leading-tight transition-colors duration-300 sm:text-xl lg:text-[1.35rem]",
+                solid
+                  ? "text-foreground group-hover:text-accent"
+                  : "text-parchment group-hover:text-gold-soft",
               )}
             >
               {villageName || t(site.villageName)}
+            </span>
+            <span
+              className={cn(
+                "hidden text-[0.6rem] font-medium uppercase tracking-[0.28em] transition-colors duration-300 sm:block",
+                solid ? "text-muted-foreground" : "text-parchment/65",
+              )}
+            >
+              {t(site.headerTagline)}
             </span>
           </span>
         </Link>
