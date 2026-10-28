@@ -91,14 +91,14 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="hidden shrink-0 items-center gap-5 lg:flex xl:gap-6">
+        <nav className="hidden shrink-0 items-center gap-4 text-[0.8rem] lg:flex xl:gap-5 xl:text-sm">
           {mainNav.map((item) => (
             <Link
               key={item.id}
               to={item.to as "/"}
               hash={item.hash}
               className={cn(
-                "link-quill text-sm transition-colors duration-300 hover:text-accent",
+                "link-quill transition-colors duration-300 hover:text-accent",
                 solid ? "text-foreground/80" : "text-parchment/85",
               )}
             >
