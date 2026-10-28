@@ -1163,6 +1163,7 @@ export type Database = {
           location_population_ar: string | null
           location_population_en: string | null
           logo: string | null
+          map_background_image: string | null
           map_embed_url: string | null
           waze: string | null
           whatsapp: string | null
@@ -1185,6 +1186,7 @@ export type Database = {
           location_population_ar?: string | null
           location_population_en?: string | null
           logo?: string | null
+          map_background_image?: string | null
           map_embed_url?: string | null
           waze?: string | null
           whatsapp?: string | null
@@ -1207,6 +1209,7 @@ export type Database = {
           location_population_ar?: string | null
           location_population_en?: string | null
           logo?: string | null
+          map_background_image?: string | null
           map_embed_url?: string | null
           waze?: string | null
           whatsapp?: string | null

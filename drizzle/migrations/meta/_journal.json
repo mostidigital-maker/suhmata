@@ -15,6 +15,13 @@
       "when": 1793198401219,
       "tag": "0001_footer_about",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793198405978,
+      "tag": "0002_map_background",
+      "breakpoints": true
     }
   ]
 }
