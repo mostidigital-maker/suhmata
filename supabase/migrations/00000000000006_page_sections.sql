@@ -42,7 +42,7 @@ ALTER TABLE public.section_intros ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read section intros" ON public.section_intros
   FOR SELECT TO anon, authenticated USING (true);
 CREATE POLICY "Admins manage section intros" ON public.section_intros
-  FOR ALL TO authenticated USING (public.is_admin_or_above(auth.uid())) WITH CHECK (public.is_admin_or_above(auth.uid()));
+  FOR ALL TO authenticated USING (public.is_staff(auth.uid())) WITH CHECK (public.is_staff(auth.uid()));
 CREATE TRIGGER trg_section_intros_updated BEFORE UPDATE ON public.section_intros
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
