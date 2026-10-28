@@ -22,6 +22,13 @@
       "when": 1793198405978,
       "tag": "0002_map_background",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793198476859,
+      "tag": "0003_footer_settings_and_admin_rpcs",
+      "breakpoints": true
     }
   ]
 }

@@ -1148,6 +1148,8 @@ export type Database = {
         Row: {
           about_ar: string | null
           about_en: string | null
+          address_ar: string | null
+          address_en: string | null
           contact_email: string | null
           created_at: string
           facebook: string | null
@@ -1165,12 +1167,17 @@ export type Database = {
           logo: string | null
           map_background_image: string | null
           map_embed_url: string | null
+          phone: string | null
+          rights_ar: string | null
+          rights_en: string | null
           waze: string | null
           whatsapp: string | null
         }
         Insert: {
           about_ar?: string | null
           about_en?: string | null
+          address_ar?: string | null
+          address_en?: string | null
           contact_email?: string | null
           created_at?: string
           facebook?: string | null
@@ -1188,12 +1195,17 @@ export type Database = {
           logo?: string | null
           map_background_image?: string | null
           map_embed_url?: string | null
+          phone?: string | null
+          rights_ar?: string | null
+          rights_en?: string | null
           waze?: string | null
           whatsapp?: string | null
         }
         Update: {
           about_ar?: string | null
           about_en?: string | null
+          address_ar?: string | null
+          address_en?: string | null
           contact_email?: string | null
           created_at?: string
           facebook?: string | null
@@ -1211,6 +1223,9 @@ export type Database = {
           logo?: string | null
           map_background_image?: string | null
           map_embed_url?: string | null
+          phone?: string | null
+          rights_ar?: string | null
+          rights_en?: string | null
           waze?: string | null
           whatsapp?: string | null
         }
@@ -1326,6 +1341,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_clear_user_role: {
+        Args: { _target_user_id: string }
+        Returns: undefined
+      }
+      admin_list_users: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          id: string
+          roles: Database["public"]["Enums"]["app_role"][]
+        }[]
+      }
+      admin_set_user_role: {
+        Args: { _role: string; _target_user_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1338,7 +1370,7 @@ export type Database = {
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
-      app_role: "admin" | "editor"
+      app_role: "admin" | "editor" | "super_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1466,7 +1498,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "editor"],
+      app_role: ["admin", "editor", "super_admin"],
     },
   },
 } as const
