@@ -1146,6 +1146,8 @@ export type Database = {
       }
       settings: {
         Row: {
+          about_ar: string | null
+          about_en: string | null
           contact_email: string | null
           created_at: string
           facebook: string | null
@@ -1166,6 +1168,8 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          about_ar?: string | null
+          about_en?: string | null
           contact_email?: string | null
           created_at?: string
           facebook?: string | null
@@ -1186,6 +1190,8 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          about_ar?: string | null
+          about_en?: string | null
           contact_email?: string | null
           created_at?: string
           facebook?: string | null
