@@ -55,9 +55,8 @@ export default defineConfig(({ mode, command }) => {
         },
       }),
       // nitro builds the deployable server output; only needed for `vite build`.
-      // Deployed on Vercel — the preset must match, or Vercel won't
-      // understand how to run the server output or serve its assets.
-      command === "build" ? nitro({ preset: "vercel" }) : undefined,
+      // Lovable deploys dist/ to an edge worker.
+      command === "build" ? nitro({ preset: "cloudflare-module", output: { dir: "dist" } }) : undefined,
       viteReact(),
     ],
   };
