@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -124,6 +124,7 @@ type ContentManagerProps = {
 
 export function ContentManager({ canEditIdentity, canEditContent }: ContentManagerProps) {
   const queryClient = useQueryClient();
+  const mapImageInput = useRef<HTMLInputElement>(null);
   const [heroForm, setHeroForm] = useState({
     title_ar: "",
     title_en: "",
@@ -499,6 +500,29 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
     onSuccess: (url) => {
       setSettingsForm((current) => ({ ...current, map_background_image: url }));
       toast.success("Map image uploaded. Save settings to publish it.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const saveMapBackground = useMutation({
+    mutationFn: async () => {
+      if (!canEditIdentity) throw new Error("Super admin access required.");
+      const existing = settingsQuery.data;
+      if (!existing) throw new Error("Site settings are not available yet.");
+      const { error } = await supabase
+        .from("settings")
+        .update({ map_background_image: settingsForm.map_background_image || null })
+        .eq("id", existing.id)
+        .select("id")
+        .single();
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["admin", "settings"] }),
+        queryClient.invalidateQueries({ queryKey: ["settings"] }),
+      ]);
+      toast.success("تم حفظ صورة الخريطة · Map image saved");
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -1099,6 +1123,51 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
     <>
       {canEditIdentity ? (
         <>
+          <section id="map-image-editor" className="mt-12 border-y border-border py-7">
+            <h2 className="flex items-center gap-3 font-display text-2xl font-semibold">
+              <MapPin className="h-5 w-5 text-olive" aria-hidden />
+              صورة خريطة القرية · Village map image
+            </h2>
+            <div className="mt-5 grid items-start gap-5 sm:grid-cols-[minmax(0,1fr)_auto]">
+              <img
+                src={resolveMediaUrl(settingsForm.map_background_image, resolveMediaUrl("/assets/village-map.jpg"))}
+                alt="صورة خريطة القرية · Village map image"
+                className="max-h-80 w-full rounded-sm border border-border object-contain bg-secondary"
+              />
+              <div className="flex flex-wrap gap-3 sm:flex-col">
+                <input
+                  ref={mapImageInput}
+                  type="file"
+                  accept="image/*"
+                  aria-label="صورة خريطة جديدة · New map image"
+                  className="sr-only"
+                  disabled={uploadMapBackground.isPending || saveMapBackground.isPending || !settingsQuery.data}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) uploadMapBackground.mutate(file);
+                    event.target.value = "";
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={uploadMapBackground.isPending || saveMapBackground.isPending || !settingsQuery.data}
+                  onClick={() => mapImageInput.current?.click()}
+                >
+                  <ImageUp aria-hidden />
+                  {uploadMapBackground.isPending ? "جارٍ الرفع · Uploading…" : "استبدال الصورة · Replace map image"}
+                </Button>
+                <Button
+                  type="button"
+                  disabled={saveMapBackground.isPending || uploadMapBackground.isPending || !settingsQuery.data || settingsForm.map_background_image === (settingsQuery.data.map_background_image ?? "")}
+                  onClick={() => saveMapBackground.mutate()}
+                >
+                  <Save aria-hidden />
+                  {saveMapBackground.isPending ? "جارٍ الحفظ · Saving…" : "حفظ صورة الخريطة · Save map image"}
+                </Button>
+              </div>
+            </div>
+          </section>
           <section className="mt-12 rounded-sm border border-border bg-card p-5 sm:p-7">
             <div className="flex items-center gap-3">
               <ImageUp className="h-5 w-5 text-olive" />
@@ -1359,38 +1428,6 @@ export function ContentManager({ canEditIdentity, canEditContent }: ContentManag
                 }
                 placeholder='Google Maps embed URL (Google Maps → Share → Embed a map → copy the src="..." part)'
               />
-              <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
-                <div>
-                  <p className="text-sm font-medium">
-                    صورة خريطة القرية التفاعلية · Interactive map image
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    The image markers are placed on at /map — replace it with a real map or
-                    illustration of the village, then position each landmark below in &quot;Map
-                    locations&quot;.
-                  </p>
-                </div>
-                {settingsForm.map_background_image ? (
-                  <img
-                    src={resolveMediaUrl(settingsForm.map_background_image)}
-                    alt=""
-                    className="h-16 w-28 rounded-sm border border-border object-cover"
-                  />
-                ) : null}
-                <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm hover:border-accent">
-                  <ImageUp className="h-4 w-4" />{" "}
-                  {settingsForm.map_background_image ? "Replace image" : "Upload image"}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="sr-only"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0];
-                      if (file) uploadMapBackground.mutate(file);
-                    }}
-                  />
-                </label>
-              </div>
               <input
                 className={inputClass}
                 value={settingsForm.location_district_ar}
