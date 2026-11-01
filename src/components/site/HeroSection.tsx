@@ -1,3 +1,4 @@
+import { useEffect as useEffectH, useState as useStateH } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { site } from "@/i18n/translations";
@@ -17,9 +18,11 @@ export function HeroSection() {
   const logo = useFallbackImage(resolvedLogo, logoFallback);
 
   const background = useMediaSrc(hero?.background_image, heroImage) ?? heroImage;
-  const title = field(hero, "title") || t(site.villageName);
-  const subtitle = field(hero, "subtitle") || t(site.heroIntro);
-  const district = field(hero, "district") || t(site.villageTagline);
+  const [mounted, setMounted] = useStateH(false);
+  useEffectH(() => setMounted(true), []);
+  const title = (mounted && field(hero, "title")) || t(site.villageName);
+  const subtitle = (mounted && field(hero, "subtitle")) || t(site.heroIntro);
+  const district = (mounted && field(hero, "district")) || t(site.villageTagline);
 
   return (
     <section id="top" className="relative isolate min-h-[92svh] overflow-hidden">

@@ -28,7 +28,10 @@ export function SiteHeader() {
   const resolvedLogo = useMediaSrc(settings?.logo);
   const logo = useFallbackImage(resolvedLogo, logoFallback);
   const solid = location.pathname !== "/" || scrolled || open;
-  const villageName = lang === "ar" ? hero?.title_ar : hero?.title_en;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  // Only show the stored name after hydration so server and browser markup match.
+  const villageName = mounted ? (lang === "ar" ? hero?.title_ar : hero?.title_en) : undefined;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);

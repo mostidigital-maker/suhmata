@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useLanguage } from "@/i18n/LanguageProvider";
@@ -14,7 +15,9 @@ export function SiteFooter() {
   const { data: hero } = useQuery(contentQueries.hero());
   const resolvedLogo = useMediaSrc(settings?.logo);
   const logo = useFallbackImage(resolvedLogo, logoFallback);
-  const villageName = lang === "ar" ? hero?.title_ar : hero?.title_en;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const villageName = mounted ? (lang === "ar" ? hero?.title_ar : hero?.title_en) : undefined;
   const district =
     (lang === "ar" ? hero?.district_ar : hero?.district_en) || t(site.villageTagline);
   const rights = lang === "ar" ? settings?.rights_ar : settings?.rights_en;
